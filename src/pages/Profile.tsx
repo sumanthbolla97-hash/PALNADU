@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth, db, auth, Address, Order } from "../components/AuthContext";
 import { Navigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
@@ -32,6 +32,10 @@ export function Profile() {
   });
 
   const timelineSteps = ["Processing", "Shipped", "Out for Delivery", "Delivered"];
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleReorder = (order: Order) => {
     order.items?.forEach((item) => {

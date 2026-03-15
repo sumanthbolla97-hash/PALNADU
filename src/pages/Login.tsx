@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "../components/AuthContext";
 import { useNavigate, Link, Navigate } from "react-router-dom";
@@ -12,6 +12,10 @@ export function Login() {
   const [isLoading, setIsLoading] = useState(false);
   
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "motion/react";
 import { Hero } from "../components/Hero";
 import { TrustBar } from "../components/TrustBar";
@@ -9,6 +10,10 @@ import { Testimonials } from "../components/Testimonials";
 import { FinalCTA } from "../components/FinalCTA";
 
 export function Home() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <motion.main
       initial={{ opacity: 0 }}

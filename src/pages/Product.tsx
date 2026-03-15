@@ -102,15 +102,15 @@ export function Product() {
                 {product.shortDescription}
               </p>
               
-              <div className="flex flex-col sm:flex-row items-stretch gap-6 w-full mb-20">
+              <div className="flex flex-col sm:flex-row items-stretch gap-4 sm:gap-6 w-full mb-12 sm:mb-20">
                 {cartItem ? (
-                  <div className="flex items-center justify-between border border-brand-text/20 bg-brand-surface/10 w-full sm:flex-1">
+                  <div className="flex items-center justify-between border border-brand-text/20 bg-brand-surface/10 w-full sm:flex-1 rounded-xl sm:rounded-none overflow-hidden">
                     <button 
                       onClick={() => {
                         if (cartItem.quantity === 1) removeFromCart(product.id);
                         else updateQuantity(product.id, cartItem.quantity - 1);
                       }}
-                      className="w-16 h-full min-h-[64px] flex items-center justify-center hover:bg-brand-surface/50 transition-colors text-brand-text border-r border-brand-text/10"
+                      className="w-14 sm:w-16 h-full min-h-[56px] sm:min-h-[64px] flex items-center justify-center hover:bg-brand-surface/50 transition-colors text-brand-text border-r border-brand-text/10"
                     >
                       <Minus className="w-5 h-5" />
                     </button>
@@ -120,24 +120,24 @@ export function Product() {
                     </div>
                     <button 
                       onClick={() => updateQuantity(product.id, cartItem.quantity + 1)}
-                      className="w-16 h-full min-h-[64px] flex items-center justify-center hover:bg-brand-surface/50 transition-colors text-brand-text border-l border-brand-text/10"
+                      className="w-14 sm:w-16 h-full min-h-[56px] sm:min-h-[64px] flex items-center justify-center hover:bg-brand-surface/50 transition-colors text-brand-text border-l border-brand-text/10"
                     >
                       <Plus className="w-5 h-5" />
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-stretch gap-4 w-full sm:flex-1">
-                    <div className="flex items-center border border-brand-text/20 bg-brand-surface/10 shrink-0">
+                  <div className="flex items-stretch gap-3 sm:gap-4 w-full sm:flex-1">
+                    <div className="flex items-center border border-brand-text/20 bg-brand-surface/10 shrink-0 rounded-xl sm:rounded-none overflow-hidden">
                       <button 
                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        className="w-12 h-full min-h-[64px] flex items-center justify-center hover:bg-brand-surface/50 transition-colors text-brand-text border-r border-brand-text/10"
+                        className="w-10 sm:w-12 h-full min-h-[56px] sm:min-h-[64px] flex items-center justify-center hover:bg-brand-surface/50 transition-colors text-brand-text border-r border-brand-text/10"
                       >
                         <Minus className="w-4 h-4" />
                       </button>
-                      <span className="w-12 text-center font-medium text-brand-text">{quantity}</span>
+                      <span className="w-10 sm:w-12 text-center font-medium text-brand-text">{quantity}</span>
                       <button 
                         onClick={() => setQuantity(quantity + 1)}
-                        className="w-12 h-full min-h-[64px] flex items-center justify-center hover:bg-brand-surface/50 transition-colors text-brand-text border-l border-brand-text/10"
+                        className="w-10 sm:w-12 h-full min-h-[56px] sm:min-h-[64px] flex items-center justify-center hover:bg-brand-surface/50 transition-colors text-brand-text border-l border-brand-text/10"
                       >
                         <Plus className="w-4 h-4" />
                       </button>
@@ -146,7 +146,7 @@ export function Product() {
                     <motion.button 
                       whileTap={{ scale: 0.97 }}
                       onClick={() => addToCart(product, quantity)}
-                      className="group relative flex-1 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm overflow-hidden text-center shadow-lg shadow-brand-red/20 hover:-translate-y-0.5 transition-transform flex items-center justify-center min-h-[64px]"
+                      className="group relative flex-1 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-xs sm:text-sm overflow-hidden text-center shadow-lg shadow-brand-red/20 hover:-translate-y-0.5 transition-transform flex items-center justify-center min-h-[56px] sm:min-h-[64px] rounded-xl sm:rounded-none"
                     >
                       <span className="relative z-10 flex items-center justify-center gap-2 whitespace-nowrap">
                         Add to Cart <ShoppingBag className="w-4 h-4 ml-1" />
@@ -157,7 +157,8 @@ export function Product() {
                 )}
                 
                 <button 
-                  onClicame="px-10 text-brand-text border border-brand-text/20 hover:border-brand-gold hover:text-brand-gold transition-colors tracking-widest uppercase text-sm w-full sm:flex-1 min-h-[64px] text-center font-medium"
+                  onClick={() => addToCart(product, quantity)}
+                  className="px-6 sm:px-10 text-brand-text border border-brand-text/20 hover:border-brand-gold hover:text-brand-gold transition-colors tracking-widest uppercase text-xs sm:text-sm w-full sm:flex-1 min-h-[56px] sm:min-h-[64px] text-center font-medium rounded-xl sm:rounded-none"
                 >
                   Buy Now
                 </button>

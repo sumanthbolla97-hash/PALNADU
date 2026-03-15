@@ -128,7 +128,7 @@ export function SignatureCollection() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
-            className="fixed top-0 right-0 h-full w-full md:w-[30rem] bg-brand-bg shadow-2xl z-50 overflow-y-auto border-l border-brand-text/10"
+            className="fixed top-0 right-0 h-[100dvh] w-full md:w-[30rem] bg-brand-bg shadow-2xl z-50 overflow-y-auto border-l border-brand-text/10"
           >
               <div className="p-6 md:p-10 flex flex-col min-h-full">
                 <div className="flex justify-between items-center mb-8">

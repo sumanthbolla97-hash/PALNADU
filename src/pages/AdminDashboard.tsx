@@ -23,6 +23,10 @@ export function AdminDashboard() {
   const [customers, setCustomers] = useState<any[]>([]);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     if (!isAdmin) return;
 
     // 1. Real-time Orders Listener
