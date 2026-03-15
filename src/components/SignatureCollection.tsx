@@ -53,12 +53,10 @@ export function SignatureCollection() {
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true, margin: "-10%" }}
                 transition={{ duration: 0.8, delay: (index % 3) * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="group flex flex-col bg-brand-surface/30 p-3 md:p-6 rounded-[2rem] hover:bg-brand-surface transition-colors duration-500 border border-brand-text/5"
+                onClick={() => openQuickView(product)}
+                className="group flex flex-col bg-brand-surface/30 p-3 md:p-6 rounded-[2rem] hover:bg-brand-surface transition-colors duration-500 border border-brand-text/5 cursor-pointer"
               >
-                <div 
-                  onClick={() => openQuickView(product)}
-                  className="relative aspect-square overflow-hidden mb-4 md:mb-6 bg-brand-surface rounded-3xl cursor-pointer"
-                >
+                <div className="relative aspect-square overflow-hidden mb-4 md:mb-6 bg-brand-surface rounded-3xl">
                   <div className="absolute inset-0 bg-brand-bg/10 group-hover:bg-transparent transition-colors duration-700 z-10" />
                   <img 
                     src={product.image} 
@@ -68,7 +66,7 @@ export function SignatureCollection() {
                   />
                   {/* Hover Reveal Button */}
                 <div className="absolute inset-0 hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20">
-                  <div className="px-6 py-3 bg-brand-text text-brand-bg text-xs font-medium tracking-widest uppercase rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out shadow-lg">
+                  <div className="px-6 py-3 bg-brand-text text-brand-bg text-xs font-medium tracking-widest uppercase rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out shadow-lg pointer-events-none">
                       View Details
                     </div>
                   </div>
@@ -120,7 +118,7 @@ export function SignatureCollection() {
             exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             onClick={closeQuickView}
-            className="fixed inset-0 bg-brand-text/20 z-50"
+            className="fixed inset-0 bg-brand-text/20 z-[60]"
           />
         )}
         {selectedProduct && (
@@ -130,7 +128,7 @@ export function SignatureCollection() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
-            className="fixed top-0 right-0 h-[100dvh] w-full md:w-[30rem] bg-brand-bg shadow-2xl z-50 overflow-y-auto border-l border-brand-text/10"
+            className="fixed top-0 right-0 h-[100dvh] w-full md:w-[30rem] bg-brand-bg shadow-2xl z-[70] overflow-y-auto border-l border-brand-text/10"
           >
               <div className="p-6 md:p-10 flex flex-col min-h-full">
                 <div className="flex justify-between items-center mb-8">

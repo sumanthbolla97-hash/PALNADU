@@ -190,7 +190,8 @@ export function AdminDashboard() {
                 placeholder="Search orders..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-brand-surface/30 border border-brand-text/10 rounded-full py-3 pl-12 pr-6 text-txas:
+                className="w-full bg-brand-surface/30 border border-brand-text/10 rounded-full py-3 pl-12 pr-6 text-base md:text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors"
+              />
             </div>
           </div>
         </motion.div>
@@ -268,12 +269,12 @@ export function AdminDashboard() {
                       <span className="text-sm font-medium text-brand-text ml-2">{selectedOrders.length} orders selected</span>
                       <div className="flex gap-3 items-center w-full md:w-auto">
                         <select value={bulkStatus} onChange={e => setBulkStatus(e.target.value)} className="bg-brand-bg border border-brand-text/10 rounded-lg px-4 py-2.5 text-sm text-brand-text focus:outline-none focus:border-brand-red w-full md:w-auto cursor-pointer">
-                          <option value="">Update Status...</option>
-                          <option value="Processing">Processing</option>
-                          <option value="Shipped">Shipped</option>
-                          <option value="Out for Delivery">Out for Delivery</option>
-                          <option value="Delivered">Delivered</option>
-                          <option value="Cancelled">Cancelled</option>
+                          <option value="" className="bg-brand-bg text-brand-text">Update Status...</option>
+                          <option value="Processing" className="bg-brand-bg text-brand-text">Processing</option>
+                          <option value="Shipped" className="bg-brand-bg text-brand-text">Shipped</option>
+                          <option value="Out for Delivery" className="bg-brand-bg text-brand-text">Out for Delivery</option>
+                          <option value="Delivered" className="bg-brand-bg text-brand-text">Delivered</option>
+                          <option value="Cancelled" className="bg-brand-bg text-brand-text">Cancelled</option>
                         </select>
                         <button onClick={handleBulkUpdate} disabled={isUpdating || !bulkStatus} className="bg-brand-red text-brand-bg px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-brand-red-light transition-colors disabled:opacity-50 whitespace-nowrap">
                           {isUpdating ? 'Applying...' : 'Apply'}
@@ -314,11 +315,17 @@ export function AdminDashboard() {
                           <td className="py-4 md:py-6 px-4 md:px-8 text-brand-text/60 text-sm flex items-center gap-2"><Clock className="w-3 h-3" /> {order.date}</td>
                           <td className="py-4 md:py-6 px-4 md:px-8 text-brand-text text-sm">₹{order.total}</td>
                           <td className="py-4 md:py-6 px-4 md:px-8" onClick={(e) => e.stopPropagation()}>
-                            <select .status}
+                            <select 
+                                value={order.status}
                                 onChange={(e) => updateOrderStatus(order.id, e.target.value)}
                                 className={`px-3 py-1.5 rounded-full text-[10px] tracking-widest uppercase font-bold outline-none cursor-pointer appearance-none ${order.status === 'Processing' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' : order.status === 'Delivered' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : order.status === 'Cancelled' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-brand-text/10 text-brand-text/70 border border-brand-text/20'}`}
-                            >e="Cancelled" className="text-brand-text bg-brand-bg">Cancelled</option>
-                              </select>
+                            >
+                              <option value="Processing" className="text-brand-text bg-brand-bg">Processing</option>
+                              <option value="Shipped" className="text-brand-text bg-brand-bg">Shipped</option>
+                              <option value="Out for Delivery" className="text-brand-text bg-brand-bg">Out for Delivery</option>
+                              <option value="Delivered" className="text-brand-text bg-brand-bg">Delivered</option>
+                              <option value="Cancelled" className="text-brand-text bg-brand-bg">Cancelled</option>
+                            </select>
                             </td>
                           <td className="py-4 md:py-6 px-4 md:px-8 text-right">
                               <button className="text-brand-text/40 hover:text-brand-red transition-colors">
