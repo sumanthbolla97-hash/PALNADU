@@ -2,10 +2,12 @@ import { Link } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { motion, useScroll, useMotionValueEvent } from "motion/react";
 import { useState } from "react";
+import { useAuth } from "./AuthContext";
 
 export function Navbar() {
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
+  const { user, isAdmin, logout } = useAuth();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     const previous = scrollY.getPrevious() ?? 0;
@@ -40,6 +42,14 @@ export function Navbar() {
           <div className="hidden lg:flex items-center gap-10 text-xs tracking-[0.2em] uppercase text-brand-text/80 font-medium">
             <a href="/#process" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Process</a>
             <a href="#contact" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Contact</a>
+            {isAdmin && (
+              <Link to="/admin" className="inline-block text-brand-red hover:text-brand-red-light hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Admin</Link>
+            )}
+            {user ? (
+              <button onClick={logout} className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center uppercase">Logout</button>
+            ) : (
+              <Link to="/login" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Login</Link>
+            )}
           </div>
           <Menu className="w-5 h-5 text-brand-text cursor-pointer lg:hidden hover:scale-110 transition-transform duration-300" />
         </div>

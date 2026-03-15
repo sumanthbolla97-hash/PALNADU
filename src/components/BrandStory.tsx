@@ -15,7 +15,7 @@ export function BrandStory() {
             className="relative aspect-[3/4] lg:aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl shadow-brand-black/50"
           >
             <img 
-              src="https://images.unsplash.com/photo-1615486171448-4fb344facf51?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
+              src="/traditional spices.png" 
               alt="Traditional Spices" 
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"

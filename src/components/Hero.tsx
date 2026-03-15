@@ -17,8 +17,8 @@ export function Hero() {
       <motion.div style={{ y, opacity }} className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-brand-bg/40 z-10" />
         <img 
-          src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" 
-          alt="Traditional Andhra Spices" 
+          src="/hero-image.png"
+          alt="Palnadu Karam Podi" 
           className="w-full h-full object-cover"
           referrerPolicy="no-referrer"
         />
