@@ -41,7 +41,7 @@ export function Login() {
       await loginWithGoogle();
       navigate("/");
     } catch (err: any) {
-      setError("Google sign in failed.");
+      setError(err.message || "Google sign in failed.");
       setIsLoading(false);
     }
   };
