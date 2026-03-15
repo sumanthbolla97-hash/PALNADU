@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth, db, auth, Address } from "../components/AuthContext";
 import { Navigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { MapPin, ShoppingBag, Clock, Package, LogOut, CheckCircle2, ChevronRight, AlertTriangle, X, Edit2, Trash2, Plus, Receipt, RotateCcw } from "lucide-react";
+import { MapPin, ShoppingBag, Clock, Package, LogOut, CheckCircle2, ChevronRight, AlertTriangle, X, Edit2, Trash2, Plus, Receipt, RotateCcw, Loader2 } from "lucide-react";
 import { ref, push, set, update, remove } from "firebase/database";
 import { useCart } from "../components/CartContext";
 import { CollapsibleSection } from "../components/CollapsibleSection";
@@ -247,6 +247,14 @@ export function Profile() {
     return <Navigate to="/login" replace />;
   }
 
+  if (!profileData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-brand-bg">
+        <Loader2 className="w-12 h-12 text-brand-red animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <motion.section 
       initial={{ opacity: 0, scale: 0.98, filter: "blur(8px)" }}
@@ -268,9 +276,7 @@ export function Profile() {
         <div className="flex flex-col gap-6">
           {/* Orders History Panel */}
           <CollapsibleSection title="Order History" icon={<ShoppingBag className="w-6 h-6" />} defaultOpen={true}>
-            {!profileData ? (
-              <p className="text-brand-text/40">Loading orders...</p>
-            ) : userOrders.length === 0 ? (
+            {userOrders.length === 0 ? (
               <div className="bg-brand-surface/30 p-12 rounded-[2rem] border border-brand-text/10 text-center flex flex-col items-center">
                 <Package className="w-12 h-12 text-brand-text/20 mb-4" />
                 <p className="text-brand-text/60 font-light text-lg">You haven't placed any orders yet.</p>
@@ -396,9 +402,7 @@ export function Profile() {
 
           {/* Profile Details Panel */}
           <CollapsibleSection title="Account Details" icon={<MapPin className="w-5 h-5" />}>
-              {!profileData ? (
-                <p className="text-brand-text/40 text-sm">Loading details...</p>
-              ) : isEditingAddress ? (
+              {isEditingAddress ? (
                 <div className="flex flex-col gap-3">
                   <p className="text-[10px] tracking-widest uppercase text-brand-text/50 font-medium mb-1">{editingAddressId ? "Edit" : "Add"} Delivery Address</p>
                   {addressError && <p className="text-red-500 text-xs">{addressError}</p>}
