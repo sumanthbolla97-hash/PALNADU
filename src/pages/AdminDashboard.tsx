@@ -29,7 +29,11 @@ export function AdminDashboard() {
     const unsubscribeOrders = onValue(ref(db, "orders"), (snapshot) => {
       const data = snapshot.val() || {};
       const ordersList = Object.entries(data).map(([key, val]: [string, any]) => ({ id: key, ...val }));
-      ordersList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      ordersList.sort((a, b) => {
+        const timeA = typeof a.createdAt === 'number' ? a.createdAt : (a.createdAt ? Date.now() : 0);
+        const timeB = typeof b.createdAt === 'number' ? b.createdAt : (b.createdAt ? Date.now() : 0);
+        return timeB - timeA;
+      });
       setOrders(ordersList);
     },
       (error) => console.log("Orders listener error (safe to ignore if DB is empty):", error.message)

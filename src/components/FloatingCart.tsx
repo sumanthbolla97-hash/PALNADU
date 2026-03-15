@@ -40,6 +40,14 @@ export function FloatingCart() {
     }
   }, [userAddresses, selectedAddressId]);
 
+  // Reset success screen when drawer closes
+  useEffect(() => {
+    if (!isOpen) {
+      const timer = setTimeout(() => setOrderSuccess(false), 300); // 300ms delay to allow close animation to finish smoothly
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
   const handleSaveAddress = () => {
     if (!newAddress.fullName || !newAddress.phone || !newAddress.addressLine1 || !newAddress.city || !newAddress.state || !newAddress.pincode) {
       setError("Please provide all required address fields.");
@@ -80,7 +88,7 @@ export function FloatingCart() {
     }
   };
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (viaWhatsApp: boolean = false) => {
     if (!user || !auth.currentUser) {
       setError("Please login to place your order.");
       return;
@@ -114,7 +122,7 @@ export function FloatingCart() {
         shipping: deliveryCharge,
         total: total,
         status: "Processing",
-        paymentMethod: paymentMethod,
+        paymentMethod: viaWhatsApp ? "whatsapp" : paymentMethod,
         date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
         createdAt: serverTimestamp(),
       };
@@ -124,13 +132,14 @@ export function FloatingCart() {
 
       // Generate WhatsApp Message
       const itemList = items.map(item => `${item.quantity}x ${item.product.name}`).join('\n');
-      const waText = `*New Order Alert!*\n\n*Order ID:* ${orderRef.key?.slice(-8).toUpperCase()}\n*Customer:* ${user.name}\n*Phone:* ${deliveryAddress.phone}\n*Address:* ${finalAddressStr}\n\n*Items:*\n${itemList}\n\n*Subtotal:* ₹${subtotal}\n*Tax:* ₹${tax}\n*Shipping:* ${deliveryCharge === 0 ? 'Free' : '₹' + deliveryCharge}\n*Total:* ₹${total}\n*Payment Method:* ${paymentMethod.toUpperCase()}`;
+      const waText = `*New Order Alert!*\n\n*Order ID:* ${orderRef.key?.slice(-8).toUpperCase()}\n*Customer:* ${user.name}\n*Phone:* ${deliveryAddress.phone}\n*Address:* ${finalAddressStr}\n\n*Items:*\n${itemList}\n\n*Subtotal:* ₹${subtotal}\n*Tax:* ₹${tax}\n*Shipping:* ${deliveryCharge === 0 ? 'Free' : '₹' + deliveryCharge}\n*Total:* ₹${total}\n*Payment Method:* ${viaWhatsApp ? 'WhatsApp Payment' : paymentMethod.toUpperCase()}`;
       const waUrl = `https://wa.me/917799934943?text=${encodeURIComponent(waText)}`;
       
       setWhatsappUrl(waUrl);
       
-      // Try to open WhatsApp automatically
-      setTimeout(() => window.open(waUrl, '_blank'), 300);
+      if (viaWhatsApp) {
+        setTimeout(() => window.open(waUrl, '_blank'), 300);
+      }
 
       setOrderSuccess(true);
       clearCart();
@@ -197,9 +206,12 @@ export function FloatingCart() {
                     <CheckCircle className="w-20 h-20 text-green-500 mb-6" />
                     <h3 className="text-3xl font-serif text-brand-text mb-2">Order placed successfully!</h3>
                     <p className="text-brand-text/60 font-light mb-8">Our agent will get in contact with you shortly.</p>
-                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="px-6 py-3 border border-brand-text/20 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-brand-surface transition-colors flex items-center gap-2">
+                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="px-6 py-3 mb-4 bg-[#25D366] text-white rounded-full text-xs font-bold tracking-widest uppercase hover:bg-[#1da851] transition-colors flex items-center gap-2">
                       <ArrowRight className="w-4 h-4" /> Continue to WhatsApp
                     </a>
+                    <button onClick={() => setIsOpen(false)} className="px-6 py-3 border border-brand-text/20 text-brand-text rounded-full text-xs font-bold tracking-widest uppercase hover:bg-brand-surface transition-colors">
+                      Continue Shopping
+                    </button>
                   </div>
                 ) : items.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center opacity-50">
@@ -306,9 +318,14 @@ export function FloatingCart() {
                         </div>
                       </div>
                       
-                      <button onClick={handleCheckout} disabled={isCheckingOut} className="w-full py-4 mt-2 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm rounded-2xl hover:bg-brand-red-light transition-colors flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg shadow-brand-red/20">
-                        {isCheckingOut ? "Processing..." : `Pay ₹${total}`} <ArrowRight className="w-4 h-4" />
-                      </button>
+                      <div className="flex flex-col gap-3 mt-2">
+                        <button onClick={() => handleCheckout(false)} disabled={isCheckingOut} className="w-full py-4 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm rounded-2xl hover:bg-brand-red-light transition-colors flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg shadow-brand-red/20">
+                          {isCheckingOut ? "Processing..." : `Pay ₹${total}`} <ArrowRight className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleCheckout(true)} disabled={isCheckingOut} className="w-full py-4 bg-[#25D366] text-white font-medium tracking-widest uppercase text-sm rounded-2xl hover:bg-[#1da851] transition-colors flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg shadow-[#25D366]/20">
+                          Order via WhatsApp
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <Link to="/login" onClick={() => setIsOpen(false)} className="w-full py-4 bg-brand-text text-brand-bg font-medium tracking-widest uppercase text-sm rounded-full hover:bg-brand-text/80 transition-colors flex items-center justify-center gap-3">

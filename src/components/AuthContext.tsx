@@ -112,15 +112,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           
           // Client-side sort to ensure newest orders are at the top
           orders.sort((a: any, b: any) => {
-            const timeA = a.createdAt || 0;
-            const timeB = b.createdAt || 0;
+            const timeA = typeof a.createdAt === 'number' ? a.createdAt : (a.createdAt ? Date.now() : 0);
+            const timeB = typeof b.createdAt === 'number' ? b.createdAt : (b.createdAt ? Date.now() : 0);
             return timeB - timeA;
           });
           
           setUserOrders(orders);
           localStorage.setItem('palnadu_orders', JSON.stringify(orders));
         }, (error) => {
-          console.error("Orders Sync Error:", error);
+          console.error("🔥 Firebase Permission Denied: Your DB Rules are blocking the app from loading orders.", error.message);
+          console.log("To fix this, go to Firebase Console -> Realtime Database -> Rules and update them.");
           setUserOrders([]); // Fallback to prevent infinite loading
         });
 
