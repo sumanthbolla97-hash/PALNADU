@@ -11,11 +11,14 @@ export function Product() {
   const product = products.find(p => p.id === id);
   const { items, addToCart, updateQuantity, removeFromCart, openCart } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const cartItem = product ? items.find(item => item.product.id === product.id) : undefined;
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    document.body.style.overflow = 'unset'; // Force unlock scroll in case a modal left it locked
+    setActiveImageIndex(0);
   }, [id]);
 
   if (!product) {
@@ -31,11 +34,13 @@ export function Product() {
     );
   }
 
+  const displayImages = product.images?.length ? product.images : [product.image];
+
   return (
     <motion.main
-      initial={{ opacity: 0, scale: 0.98, filter: "blur(8px)" }}
-      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-      exit={{ opacity: 0, scale: 0.98, filter: "blur(8px)" }}
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.98 }}
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       className="min-h-screen bg-brand-bg pt-24 pb-32"
     >
@@ -49,15 +54,19 @@ export function Product() {
 
         <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-start relative">
           {/* Left: Sticky Image Gallery */}
-          <div className="w-full lg:w-1/2 lg:sticky lg:top-32">
+          <div className="w-full lg:w-1/2 lg:sticky lg:top-32 flex flex-col gap-4">
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-              className="relative aspect-[3/4] overflow-hidden bg-brand-surface shadow-2xl shadow-brand-red/5 group border border-brand-text/10 rounded-[2rem]"
+              className="relative aspect-square lg:aspect-[3/4] overflow-hidden bg-brand-surface shadow-2xl shadow-brand-red/5 group border border-brand-text/10 rounded-[2rem]"
             >
-              <img 
-                src={product.image} 
+              <motion.img 
+                key={activeImageIndex}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                src={displayImages[activeImageIndex]} 
                 alt={product.name} 
                 className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000 ease-out"
                 referrerPolicy="no-referrer"
@@ -75,6 +84,23 @@ export function Product() {
                 ))}
               </div>
             </motion.div>
+
+            {/* Thumbnails */}
+            {displayImages.length > 1 && (
+              <div className="flex gap-3 md:gap-4 overflow-x-auto hide-scrollbar pb-2">
+                {displayImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveImageIndex(idx)}
+                    className={`relative w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden shrink-0 border-2 transition-all duration-300 ${
+                      activeImageIndex === idx ? 'border-brand-red scale-100' : 'border-transparent hover:border-brand-text/30 scale-95 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <img src={img} alt={`${product.name} thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right: Scrolling Content */}

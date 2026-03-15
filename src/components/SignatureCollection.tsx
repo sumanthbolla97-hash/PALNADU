@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Link } from "react-router-dom";
 import { products, Product } from "../data/products";
@@ -9,6 +9,13 @@ export function SignatureCollection() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
   const { items, addToCart, updateQuantity, removeFromCart, openCart } = useCart();
+
+  // Prevent scroll lock if user navigates back via phone swipe while drawer is open
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
 
   const openQuickView = (product: Product) => {
     setSelectedProduct(product);

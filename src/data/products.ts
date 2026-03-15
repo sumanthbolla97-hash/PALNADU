@@ -5,6 +5,7 @@ export interface Product {
   price: number;
   weight: string;
   image: string;
+  images?: string[];
   ingredients: string;
   shelfLife: string;
   storage: string;
@@ -19,6 +20,7 @@ export const products: Product[] = [
     price: 149,
     weight: "100g",
     image: "/traditional-spices.png",
+    images: ["/traditional-spices.png", "/Theritual.png"],
     ingredients: "Red chilli, roasted dal, garlic, cumin, salt, traditional spices",
     shelfLife: "3 months",
     storage: "Store in an airtight container in a cool, dry place.",
