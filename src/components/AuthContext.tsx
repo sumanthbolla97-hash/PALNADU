@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { getDatabase, ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
@@ -223,8 +223,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAdmin = user?.email === 'sumanthbolla97@gmail.com';
 
+  const contextValue = useMemo(() => ({
+    user, profileData, userOrders, userAddresses, loginWithEmail, signupWithEmail, loginWithGoogle, logout, isAdmin, loading
+  }), [user, profileData, userOrders, userAddresses, isAdmin, loading]);
+
   return (
-    <AuthContext.Provider value={{ user, profileData, userOrders, userAddresses, loginWithEmail, signupWithEmail, loginWithGoogle, logout, isAdmin, loading }}>
+    <AuthContext.Provider value={contextValue}>
       {loading ? (
         <div className="min-h-screen flex flex-col items-center justify-center bg-brand-bg text-brand-text">
           <div className="text-center animate-pulse">

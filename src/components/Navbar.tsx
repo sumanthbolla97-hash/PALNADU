@@ -99,10 +99,10 @@ export function Navbar() {
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               className="absolute top-full left-0 right-0 mt-4 bg-brand-bg/95 backdrop-blur-2xl border border-brand-text/10 p-6 flex flex-col gap-6 pointer-events-auto shadow-2xl lg:hidden rounded-2xl mx-auto max-h-[calc(100dvh-6rem)] overflow-y-auto hide-scrollbar"
             >
-              <a href="/#shop" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-text/80 font-medium">Shop</a>
-              <a href="/#story" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-text/80 font-medium">Story</a>
-              <a href="/#process" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-text/80 font-medium">Process</a>
-              <a href="#contact" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-text/80 font-medium">Contact</a>
+              <a href="/#shop" onClick={() => setMobileMenuOpen(false)} className="text-base tracking-[0.2em] uppercase text-brand-text/80 font-medium py-1">Shop</a>
+              <a href="/#story" onClick={() => setMobileMenuOpen(false)} className="text-base tracking-[0.2em] uppercase text-brand-text/80 font-medium py-1">Story</a>
+              <a href="/#process" onClick={() => setMobileMenuOpen(false)} className="text-base tracking-[0.2em] uppercase text-brand-text/80 font-medium py-1">Process</a>
+              <a href="#contact" onClick={() => setMobileMenuOpen(false)} className="text-base tracking-[0.2em] uppercase text-brand-text/80 font-medium py-1">Contact</a>
               {user ? (
                 <>
                   <div className="h-px bg-brand-text/10 my-2"></div>
@@ -112,14 +112,14 @@ export function Navbar() {
                       <span className="text-brand-text/40 text-xs tracking-widest uppercase truncate">{user.email}</span>
                     </div>
                     {isAdmin && (
-                      <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-red font-medium">Admin Dashboard</Link>
+                      <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="text-base tracking-[0.2em] uppercase text-brand-red font-medium py-1">Admin Dashboard</Link>
                     )}
-                    <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-text/80 font-medium">My Account</Link>
-                    <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="text-left text-sm tracking-[0.2em] uppercase text-brand-text/50 font-medium hover:text-brand-red transition-colors">Sign Out</button>
+                    <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="text-base tracking-[0.2em] uppercase text-brand-text/80 font-medium py-1">My Account</Link>
+                    <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="text-left text-base tracking-[0.2em] uppercase text-brand-text/50 font-medium hover:text-brand-red transition-colors py-1">Sign Out</button>
                   </div>
                 </>
               ) : (
-                <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-text/80 font-medium">Login</Link>
+                <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="text-base tracking-[0.2em] uppercase text-brand-text/80 font-medium py-1">Login</Link>
               )}
             </motion.div>
           )}

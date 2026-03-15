@@ -240,9 +240,9 @@ export function FloatingCart() {
                           </div>
                           <div className="flex justify-between items-center mt-2">
                             <div className="flex items-center border border-brand-text/10 rounded-full bg-brand-bg">
-                              <button onClick={() => updateQuantity(item.product.id, Math.max(1, item.quantity - 1))} className="p-1 hover:bg-brand-surface rounded-full"><Minus className="w-3 h-3 text-brand-text" /></button>
-                              <span className="w-8 text-center text-xs font-medium text-brand-text">{item.quantity}</span>
-                              <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="p-1 hover:bg-brand-surface rounded-full"><Plus className="w-3 h-3 text-brand-text" /></button>
+                            <button onClick={() => updateQuantity(item.product.id, Math.max(1, item.quantity - 1))} className="p-1.5 md:p-1 hover:bg-brand-surface rounded-full"><Minus className="w-4 h-4 md:w-3 md:h-3 text-brand-text" /></button>
+                            <span className="w-8 text-center text-xs md:text-sm font-medium text-brand-text">{item.quantity}</span>
+                            <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="p-1.5 md:p-1 hover:bg-brand-surface rounded-full"><Plus className="w-4 h-4 md:w-3 md:h-3 text-brand-text" /></button>
                             </div>
                             <span className="font-serif text-brand-text">₹{item.product.price * item.quantity}</span>
                           </div>
@@ -297,14 +297,14 @@ export function FloatingCart() {
                           </div>
                         ) : (
                         <div className="flex flex-col gap-3 p-4 bg-brand-surface/30 rounded-xl border border-brand-text/10">
-                          <input type="text" placeholder="Full Name *" value={newAddress.fullName} onChange={(e) => setNewAddress({...newAddress, fullName: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
-                          <input type="tel" placeholder="Phone Number *" value={newAddress.phone} onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
-                          <input type="text" placeholder="Address Line 1 *" value={newAddress.addressLine1} onChange={(e) => setNewAddress({...newAddress, addressLine1: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                      <input type="text" placeholder="Full Name *" value={newAddress.fullName} onChange={(e) => setNewAddress({...newAddress, fullName: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-base md:text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                      <input type="tel" placeholder="Phone Number *" value={newAddress.phone} onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-base md:text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                      <input type="text" placeholder="Address Line 1 *" value={newAddress.addressLine1} onChange={(e) => setNewAddress({...newAddress, addressLine1: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-base md:text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                            <input type="text" placeholder="City *" value={newAddress.city} onChange={(e) => setNewAddress({...newAddress, city: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
-                            <input type="text" placeholder="Pincode *" value={newAddress.pincode} onChange={(e) => setNewAddress({...newAddress, pincode: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                        <input type="text" placeholder="City *" value={newAddress.city} onChange={(e) => setNewAddress({...newAddress, city: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-base md:text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                        <input type="text" placeholder="Pincode *" value={newAddress.pincode} onChange={(e) => setNewAddress({...newAddress, pincode: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-base md:text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
                           </div>
-                          <input type="text" placeholder="State *" value={newAddress.state} onChange={(e) => setNewAddress({...newAddress, state: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                      <input type="text" placeholder="State *" value={newAddress.state} onChange={(e) => setNewAddress({...newAddress, state: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-base md:text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
                           <div className="flex gap-2 mt-1">
                             {userAddresses.length > 0 && (
                               <button onClick={() => setIsAddingNewAddress(false)} className="w-1/3 py-3 border border-brand-text/20 text-brand-text text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-brand-surface transition-colors">Cancel</button>

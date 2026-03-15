@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 import { Product } from '../data/products';
 import { useAuth, db } from './AuthContext';
 import { ref, set, get } from 'firebase/database';
@@ -79,7 +79,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem('palnadu_cart', JSON.stringify(items));
     if (user) {
-      set(ref(db, `carts/${user.uid}`), { items }).catch(console.error);
+      // Debounce Firebase writes by 500ms to avoid network spam on rapid clicks
+      const timeoutId = setTimeout(() => {
+        set(ref(db, `carts/${user.uid}`), { items }).catch(console.error);
+      }, 500); 
+      return () => clearTimeout(timeoutId);
     }
   }, [items, user]);
 
@@ -99,14 +103,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const updateQuantity = (productId: string, quantity: number) => setItems(prev => prev.map(item => item.product.id === productId ? { ...item, quantity } : item));
   const clearCart = () => setItems([]);
 
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  
-  // Centralized Cart Calculations
-  const subtotal = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
-  const deliveryCharge = subtotal > 500 || subtotal === 0 ? 0 : 50;
-  const tax = 0; // Maintained for interface compatibility, set to 0
-  const total = subtotal + deliveryCharge;
-  const cartTotal = subtotal; // Maintained for backward compatibility
+  // Wrap derived calculations in useMemo to prevent unnecessary calculations on every render
+  const { totalItems, cartTotal, subtotal, deliveryCharge, tax, total } = useMemo(() => {
+    const calculatedSubtotal = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+    const calculatedDeliveryCharge = calculatedSubtotal > 500 || calculatedSubtotal === 0 ? 0 : 50;
+    const calculatedTax = 0;
+    
+    return {
+      totalItems: items.reduce((sum, item) => sum + item.quantity, 0),
+      cartTotal: calculatedSubtotal,
+      subtotal: calculatedSubtotal,
+      deliveryCharge: calculatedDeliveryCharge,
+      tax: calculatedTax,
+      total: calculatedSubtotal + calculatedDeliveryCharge
+    };
+  }, [items]);
   
   const openCart = () => setIsCartOpen(true);
   const closeCart = () => setIsCartOpen(false);

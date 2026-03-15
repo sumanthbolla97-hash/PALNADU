@@ -282,17 +282,17 @@ export function Profile() {
                   <p className="text-[10px] tracking-widest uppercase text-brand-text/50 font-medium mb-1">{editingAddressId ? "Edit" : "Add"} Delivery Address</p>
                   {addressError && <p className="text-red-500 text-xs">{addressError}</p>}
                   
-                  <input type="text" placeholder="Full Name *" value={formData.fullName} onChange={(e) => setFormData({...formData, fullName: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
-                  <input type="tel" placeholder="Phone Number *" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
-                  <input type="text" placeholder="Address Line 1 (House No, Building) *" value={formData.addressLine1} onChange={(e) => setFormData({...formData, addressLine1: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
-                  <input type="text" placeholder="Address Line 2 (Area, Street)" value={formData.addressLine2} onChange={(e) => setFormData({...formData, addressLine2: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                  <input type="text" placeholder="Full Name *" value={formData.fullName} onChange={(e) => setFormData({...formData, fullName: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-base md:text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                  <input type="tel" placeholder="Phone Number *" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-base md:text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                  <input type="text" placeholder="Address Line 1 (House No, Building) *" value={formData.addressLine1} onChange={(e) => setFormData({...formData, addressLine1: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-base md:text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                  <input type="text" placeholder="Address Line 2 (Area, Street)" value={formData.addressLine2} onChange={(e) => setFormData({...formData, addressLine2: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-base md:text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input type="text" placeholder="City *" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
-                    <input type="text" placeholder="State *" value={formData.state} onChange={(e) => setFormData({...formData, state: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                    <input type="text" placeholder="City *" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-base md:text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                    <input type="text" placeholder="State *" value={formData.state} onChange={(e) => setFormData({...formData, state: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-base md:text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input type="text" placeholder="Pincode *" value={formData.pincode} onChange={(e) => setFormData({...formData, pincode: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
-                    <input type="text" placeholder="Landmark" value={formData.landmark} onChange={(e) => setFormData({...formData, landmark: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                    <input type="text" placeholder="Pincode *" value={formData.pincode} onChange={(e) => setFormData({...formData, pincode: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-base md:text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                    <input type="text" placeholder="Landmark" value={formData.landmark} onChange={(e) => setFormData({...formData, landmark: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-base md:text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
                   </div>
                   
                   <label className="flex items-center gap-2 mt-2 cursor-pointer">
@@ -362,7 +362,7 @@ export function Profile() {
                   <div key={order.id} className="bg-brand-surface/30 rounded-2xl border border-brand-text/10 overflow-hidden hover:border-brand-text/20 transition-colors">
                     <div 
                       onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
-                      className="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 cursor-pointer hover:bg-brand-surface/20 transition-colors"
+                      className="p-4 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 cursor-pointer hover:bg-brand-surface/20 transition-colors"
                     >
                       <div>
                         <div className="flex items-center gap-3 mb-2">
@@ -386,7 +386,7 @@ export function Profile() {
                           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                           className="border-t border-brand-text/5 bg-brand-surface/10 overflow-hidden"
                         >
-                          <div className="p-6 flex flex-col gap-6">
+                          <div className="p-4 md:p-6 flex flex-col gap-6">
                             {/* Status Timeline */}
                             <div className="px-2 py-8 mb-2 overflow-x-auto hide-scrollbar">
                               <div className="flex justify-between relative min-w-[300px]">

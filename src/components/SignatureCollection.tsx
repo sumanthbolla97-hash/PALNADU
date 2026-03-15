@@ -21,6 +21,8 @@ export function SignatureCollection() {
     document.body.style.overflow = 'unset';
   };
 
+  const quickViewCartItem = selectedProduct ? items.find(item => item.product.id === selectedProduct.id) : undefined;
+
   return (
     <section id="shop" className="py-20 lg:py-32 bg-brand-bg relative">
       <div className="max-w-[100rem] mx-auto px-6">
@@ -65,8 +67,8 @@ export function SignatureCollection() {
                     referrerPolicy="no-referrer"
                   />
                   {/* Hover Reveal Button */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20">
-                    <div className="px-4 py-2 md:px-6 md:py-3 bg-brand-text/80 md:bg-brand-text text-brand-bg text-[10px] md:text-xs font-medium tracking-widest uppercase rounded-full transform md:translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out shadow-lg">
+                <div className="absolute inset-0 hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20">
+                  <div className="px-6 py-3 bg-brand-text text-brand-bg text-xs font-medium tracking-widest uppercase rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out shadow-lg">
                       View Details
                     </div>
                   </div>
@@ -88,13 +90,13 @@ export function SignatureCollection() {
                     </p>
                     {cartItem ? (
                       <div className="flex items-center border border-brand-text/20 rounded-full p-1 bg-brand-bg shadow-sm">
-                        <button onClick={(e) => { e.stopPropagation(); if (cartItem.quantity === 1) removeFromCart(product.id); else updateQuantity(product.id, cartItem.quantity - 1); }} className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded-full hover:bg-brand-surface transition-colors text-brand-text"><Minus className="w-3 h-3 md:w-4 md:h-4" /></button>
-                        <span className="w-6 md:w-8 text-center text-xs font-medium text-brand-text">{cartItem.quantity}</span>
-                        <button onClick={(e) => { e.stopPropagation(); updateQuantity(product.id, cartItem.quantity + 1); }} className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded-full hover:bg-brand-surface transition-colors text-brand-text"><Plus className="w-3 h-3 md:w-4 md:h-4" /></button>
+                        <button onClick={(e) => { e.stopPropagation(); if (cartItem.quantity === 1) removeFromCart(product.id); else updateQuantity(product.id, cartItem.quantity - 1); }} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-brand-surface transition-colors text-brand-text"><Minus className="w-4 h-4" /></button>
+                        <span className="w-8 text-center text-xs font-medium text-brand-text">{cartItem.quantity}</span>
+                        <button onClick={(e) => { e.stopPropagation(); updateQuantity(product.id, cartItem.quantity + 1); }} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-brand-surface transition-colors text-brand-text"><Plus className="w-4 h-4" /></button>
                       </div>
                     ) : (
                       <button 
-                        onClick={(e) => { e.stopPropagation(); addToCart(product, 1); }}
+                        onClick={(e) => { e.stopPropagation(); addToCart(product, 1); openCart(); }}
                         className="text-[10px] md:text-xs tracking-[0.2em] uppercase text-brand-red font-medium opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1"
                       >
                         Add to Cart <ShoppingBag className="w-3 h-3 ml-1" />
@@ -159,44 +161,74 @@ export function SignatureCollection() {
                 )}
                 
                 <div className="mt-auto pt-8 border-t border-brand-text/10">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="flex items-center border border-brand-text/20 rounded-full p-1">
+                  {quickViewCartItem ? (
+                    <div className="flex flex-col gap-4 mb-6">
+                      <div className="flex items-center justify-between border border-brand-text/20 bg-brand-surface/10 w-full rounded-xl overflow-hidden">
+                        <button 
+                          onClick={() => {
+                            if (quickViewCartItem.quantity === 1) removeFromCart(selectedProduct.id);
+                            else updateQuantity(selectedProduct.id, quickViewCartItem.quantity - 1);
+                          }}
+                          className="w-16 h-full min-h-[56px] flex items-center justify-center hover:bg-brand-surface/50 transition-colors text-brand-text border-r border-brand-text/10"
+                        >
+                          <Minus className="w-5 h-5" />
+                        </button>
+                        <div className="flex flex-col items-center py-2">
+                          <span className="text-xl font-medium text-brand-text leading-none">{quickViewCartItem.quantity}</span>
+                          <span className="text-[10px] text-brand-text/50 uppercase tracking-widest mt-1">in cart</span>
+                        </div>
+                        <button 
+                          onClick={() => updateQuantity(selectedProduct.id, quickViewCartItem.quantity + 1)}
+                          className="w-16 h-full min-h-[56px] flex items-center justify-center hover:bg-brand-surface/50 transition-colors text-brand-text border-l border-brand-text/10"
+                        >
+                          <Plus className="w-5 h-5" />
+                        </button>
+                      </div>
                       <button 
-                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-brand-surface transition-colors text-brand-text"
+                        onClick={() => { closeQuickView(); openCart(); }}
+                        className="w-full py-4 border border-brand-text/20 text-brand-text font-medium tracking-widest uppercase text-xs rounded-xl hover:bg-brand-surface transition-colors"
                       >
-                        <Minus className="w-4 h-4" />
-                      </button>
-                      <span className="w-12 text-center font-medium text-brand-text">{quantity}</span>
-                      <button 
-                        onClick={() => setQuantity(quantity + 1)}
-                        className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-brand-surface transition-colors text-brand-text"
-                      >
-                        <Plus className="w-4 h-4" />
+                        View in Cart
                       </button>
                     </div>
-                    <div className="text-brand-text/50 text-sm font-light">
-                      Total: <span className="text-brand-text font-medium">₹{selectedProduct.price * quantity}</span>
+                  ) : (
+                    <div className="flex flex-col gap-4 mb-6">
+                      <div className="flex items-stretch gap-3 w-full">
+                        <div className="flex items-center border border-brand-text/20 bg-brand-surface/10 shrink-0 rounded-xl overflow-hidden">
+                          <button 
+                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                            className="w-12 h-full min-h-[56px] flex items-center justify-center hover:bg-brand-surface/50 transition-colors text-brand-text border-r border-brand-text/10"
+                          >
+                            <Minus className="w-4 h-4" />
+                          </button>
+                          <span className="w-12 text-center font-medium text-brand-text">{quantity}</span>
+                          <button 
+                            onClick={() => setQuantity(quantity + 1)}
+                            className="w-12 h-full min-h-[56px] flex items-center justify-center hover:bg-brand-surface/50 transition-colors text-brand-text border-l border-brand-text/10"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </div>
+                        
+                        <motion.button 
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => {
+                            addToCart(selectedProduct, quantity);
+                            closeQuickView();
+                            openCart();
+                          }}
+                          className="flex-1 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-xs sm:text-sm overflow-hidden text-center shadow-lg shadow-brand-red/20 flex items-center justify-center min-h-[56px] rounded-xl hover:-translate-y-0.5 transition-transform"
+                        >
+                          Add to Cart <ShoppingBag className="w-4 h-4 ml-2" />
+                        </motion.button>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <motion.button 
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => {
-                      addToCart(selectedProduct, quantity);
-                      closeQuickView();
-                      openCart();
-                    }}
-                    className="w-full py-5 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm rounded-full hover:bg-brand-red-light transition-colors flex items-center justify-center gap-3 hover:-translate-y-0.5 shadow-lg shadow-brand-red/20"
-                  >
-                    <ShoppingBag className="w-4 h-4" />
-                    Add to Cart
-                  </motion.button>
+                  )}
                   
                   <Link 
                     to={`/product/${selectedProduct.id}`}
                     onClick={closeQuickView}
-                    className="w-full py-5 mt-4 border border-brand-text/20 text-brand-text font-medium tracking-widest uppercase text-sm rounded-full hover:bg-brand-surface transition-colors flex items-center justify-center"
+                    className="w-full py-4 border border-brand-text/20 text-brand-text font-medium tracking-widest uppercase text-sm rounded-xl hover:bg-brand-surface transition-colors flex items-center justify-center"
                   >
                     View Full Details
                   </Link>

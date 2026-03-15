@@ -190,8 +190,7 @@ export function AdminDashboard() {
                 placeholder="Search orders..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-brand-surface/30 border border-brand-text/10 rounded-full py-3 pl-12 pr-6 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors"
-              />
+                className="w-full bg-brand-surface/30 border border-brand-text/10 rounded-full py-3 pl-12 pr-6 text-txas:
             </div>
           </div>
         </motion.div>
@@ -289,15 +288,15 @@ export function AdminDashboard() {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-brand-surface/50 text-brand-text/60 text-[10px] tracking-[0.2em] uppercase border-b border-brand-text/10">
-                        <th className="py-6 px-6 w-12 text-center">
+                        <th className="py-4 md:py-6 px-4 md:px-6 w-12 text-center">
                           <input type="checkbox" checked={selectedOrders.length === displayOrders.length && displayOrders.length > 0} onChange={handleSelectAll} className="w-4 h-4 accent-brand-red cursor-pointer" />
                         </th>
-                        <th className="py-6 px-8 font-medium">Order ID</th>
-                        <th className="py-6 px-8 font-medium">Customer</th>
-                        <th className="py-6 px-8 font-medium">Date</th>
-                        <th className="py-6 px-8 font-medium">Total</th>
-                        <th className="py-6 px-8 font-medium">Status</th>
-                        <th className="py-6 px-8 font-medium text-right">Action</th>
+                        <th className="py-4 md:py-6 px-4 md:px-8 font-medium">Order ID</th>
+                        <th className="py-4 md:py-6 px-4 md:px-8 font-medium">Customer</th>
+                        <th className="py-4 md:py-6 px-4 md:px-8 font-medium">Date</th>
+                        <th className="py-4 md:py-6 px-4 md:px-8 font-medium">Total</th>
+                        <th className="py-4 md:py-6 px-4 md:px-8 font-medium">Status</th>
+                        <th className="py-4 md:py-6 px-4 md:px-8 font-medium text-right">Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -307,27 +306,21 @@ export function AdminDashboard() {
                             onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
                             className="border-b border-brand-text/5 hover:bg-brand-surface/40 transition-colors group cursor-pointer"
                           >
-                            <td className="py-6 px-6 text-center" onClick={(e) => e.stopPropagation()}>
+                          <td className="py-4 md:py-6 px-4 md:px-6 text-center" onClick={(e) => e.stopPropagation()}>
                               <input type="checkbox" checked={selectedOrders.includes(order.id)} onChange={() => toggleOrderSelection(order.id)} className="w-4 h-4 accent-brand-red cursor-pointer" />
                             </td>
-                            <td className="py-6 px-8 text-brand-text text-sm font-medium">{order.id?.slice(-6)?.toUpperCase() || 'N/A'}</td>
-                            <td className="py-6 px-8 text-brand-text/80 text-sm">{order.customerName}</td>
-                            <td className="py-6 px-8 text-brand-text/60 text-sm flex items-center gap-2"><Clock className="w-3 h-3" /> {order.date}</td>
-                            <td className="py-6 px-8 text-brand-text text-sm">₹{order.total}</td>
-                            <td className="py-6 px-8" onClick={(e) => e.stopPropagation()}>
-                              <select 
-                                value={order.status}
+                          <td className="py-4 md:py-6 px-4 md:px-8 text-brand-text text-sm font-medium">{order.id?.slice(-6)?.toUpperCase() || 'N/A'}</td>
+                          <td className="py-4 md:py-6 px-4 md:px-8 text-brand-text/80 text-sm">{order.customerName}</td>
+                          <td className="py-4 md:py-6 px-4 md:px-8 text-brand-text/60 text-sm flex items-center gap-2"><Clock className="w-3 h-3" /> {order.date}</td>
+                          <td className="py-4 md:py-6 px-4 md:px-8 text-brand-text text-sm">₹{order.total}</td>
+                          <td className="py-4 md:py-6 px-4 md:px-8" onClick={(e) => e.stopPropagation()}>
+                            <select .status}
                                 onChange={(e) => updateOrderStatus(order.id, e.target.value)}
                                 className={`px-3 py-1.5 rounded-full text-[10px] tracking-widest uppercase font-bold outline-none cursor-pointer appearance-none ${order.status === 'Processing' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' : order.status === 'Delivered' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : order.status === 'Cancelled' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-brand-text/10 text-brand-text/70 border border-brand-text/20'}`}
-                              >
-                                <option value="Processing" className="text-brand-text bg-brand-bg">Processing</option>
-                                <option value="Shipped" className="text-brand-text bg-brand-bg">Shipped</option>
-                                <option value="Out for Delivery" className="text-brand-text bg-brand-bg">Out for Delivery</option>
-                                <option value="Delivered" className="text-brand-text bg-brand-bg">Delivered</option>
-                                <option value="Cancelled" className="text-brand-text bg-brand-bg">Cancelled</option>
+                            >e="Cancelled" className="text-brand-text bg-brand-bg">Cancelled</option>
                               </select>
                             </td>
-                            <td className="py-6 px-8 text-right">
+                          <td className="py-4 md:py-6 px-4 md:px-8 text-right">
                               <button className="text-brand-text/40 hover:text-brand-red transition-colors">
                                 {expandedOrderId === order.id ? <ChevronDown className="w-5 h-5 ml-auto" /> : <ChevronRight className="w-5 h-5 ml-auto" />}
                               </button>
@@ -337,7 +330,7 @@ export function AdminDashboard() {
                           {/* Expanded Order Details Row */}
                           {expandedOrderId === order.id && (
                             <tr className="bg-brand-surface/20 border-b border-brand-text/5">
-                              <td colSpan={7} className="py-8 px-10">
+                              <td colSpan={7} className="py-6 md:py-8 px-4 md:px-10">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                   <div className="flex flex-col gap-4 text-sm text-brand-text/80">
                                     <div className="flex items-start gap-3">
@@ -351,8 +344,7 @@ export function AdminDashboard() {
                                         {order.fullAddressObj ? (
                                           <div className="text-brand-text/60 mt-1 flex flex-col gap-0.5 text-sm leading-relaxed">
                                             <span className="font-medium text-brand-text/80">{order.fullAddressObj.fullName}</span>
-                                            <span>{order.fullAddressObj.addressLine1}{order.fullAddressObj.addressLine2 ? `, ${order.fullAddressObj.addressLine2}` : ''}</span>
-                                            <span>{order.fullAddressObj.city}, {order.fullAddressObj.state} - {order.fullAddressObj.pincode}</span>
+                                            <span>{order.fullAddressObj.addressLine1}, {order.fullAddressObj.city}, {order.fullAddressObj.state} - {order.fullAddressObj.pincode}</span>
                                             {order.fullAddressObj.landmark && <span className="text-xs mt-0.5 text-brand-text/40">Landmark: {order.fullAddressObj.landmark}</span>}
                                             {(order.lat && order.lng) && <span className="text-xs mt-0.5 text-brand-text/40">GPS: {order.lat}, {order.lng}</span>}
                                           </div>
@@ -394,21 +386,21 @@ export function AdminDashboard() {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-brand-surface/50 text-brand-text/60 text-[10px] tracking-[0.2em] uppercase border-b border-brand-text/10">
-                        <th className="py-6 px-8 font-medium">Product Name</th>
-                        <th className="py-6 px-8 font-medium">Price</th>
-                        <th className="py-6 px-8 font-medium">Stock</th>
-                        <th className="py-6 px-8 font-medium">Total Sales</th>
-                        <th className="py-6 px-8 font-medium">Status</th>
+                        <th className="py-4 md:py-6 px-4 md:px-8 font-medium">Product Name</th>
+                        <th className="py-4 md:py-6 px-4 md:px-8 font-medium">Price</th>
+                        <th className="py-4 md:py-6 px-4 md:px-8 font-medium">Stock</th>
+                        <th className="py-4 md:py-6 px-4 md:px-8 font-medium">Total Sales</th>
+                        <th className="py-4 md:py-6 px-4 md:px-8 font-medium">Status</th>
                       </tr>
                     </thead>
                     <tbody>
                       {displayProducts.map(product => (
                         <tr key={product.id} className="border-b border-brand-text/5 hover:bg-brand-surface/40 transition-colors">
-                          <td className="py-6 px-8 text-brand-text text-sm font-medium">{product.name}</td>
-                          <td className="py-6 px-8 text-brand-text/80 text-sm">₹{product.price}</td>
-                          <td className="py-6 px-8 text-brand-text/80 text-sm">{product.stock} units</td>
-                          <td className="py-6 px-8 text-brand-text/80 text-sm">{product.sales}</td>
-                          <td className="py-6 px-8">
+                          <td className="py-4 md:py-6 px-4 md:px-8 text-brand-text text-sm font-medium">{product.name}</td>
+                          <td className="py-4 md:py-6 px-4 md:px-8 text-brand-text/80 text-sm">₹{product.price}</td>
+                          <td className="py-4 md:py-6 px-4 md:px-8 text-brand-text/80 text-sm">{product.stock} units</td>
+                          <td className="py-4 md:py-6 px-4 md:px-8 text-brand-text/80 text-sm">{product.sales}</td>
+                          <td className="py-4 md:py-6 px-4 md:px-8">
                             <span className={`px-3 py-1 rounded-full text-[10px] tracking-widest uppercase font-medium ${product.status === 'In Stock' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : product.status === 'Out of Stock' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20'}`}>
                               {product.status}
                             </span>
@@ -427,21 +419,21 @@ export function AdminDashboard() {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-brand-surface/50 text-brand-text/60 text-[10px] tracking-[0.2em] uppercase border-b border-brand-text/10">
-                        <th className="py-6 px-8 font-medium">Customer Name</th>
-                        <th className="py-6 px-8 font-medium">Email</th>
-                        <th className="py-6 px-8 font-medium">Total Orders</th>
-                        <th className="py-6 px-8 font-medium">Lifetime Spent</th>
-                        <th className="py-6 px-8 font-medium">Joined</th>
+                        <th className="py-4 md:py-6 px-4 md:px-8 font-medium">Customer Name</th>
+                        <th className="py-4 md:py-6 px-4 md:px-8 font-medium">Email</th>
+                        <th className="py-4 md:py-6 px-4 md:px-8 font-medium">Total Orders</th>
+                        <th className="py-4 md:py-6 px-4 md:px-8 font-medium">Lifetime Spent</th>
+                        <th className="py-4 md:py-6 px-4 md:px-8 font-medium">Joined</th>
                       </tr>
                     </thead>
                     <tbody>
                       {displayCustomers.map(customer => (
                         <tr key={customer.id} className="border-b border-brand-text/5 hover:bg-brand-surface/40 transition-colors">
-                          <td className="py-6 px-8 text-brand-text text-sm font-medium">{customer.name}</td>
-                          <td className="py-6 px-8 text-brand-text/60 text-sm">{customer.email}</td>
-                          <td className="py-6 px-8 text-brand-text/80 text-sm">{customer.orders}</td>
-                          <td className="py-6 px-8 text-brand-text/80 text-sm">₹{customer.spent}</td>
-                          <td className="py-6 px-8 text-brand-text/60 text-sm">{customer.joinDate}</td>
+                          <td className="py-4 md:py-6 px-4 md:px-8 text-brand-text text-sm font-medium">{customer.name}</td>
+                          <td className="py-4 md:py-6 px-4 md:px-8 text-brand-text/60 text-sm">{customer.email}</td>
+                          <td className="py-4 md:py-6 px-4 md:px-8 text-brand-text/80 text-sm">{customer.orders}</td>
+                          <td className="py-4 md:py-6 px-4 md:px-8 text-brand-text/80 text-sm">₹{customer.spent}</td>
+                          <td className="py-4 md:py-6 px-4 md:px-8 text-brand-text/60 text-sm">{customer.joinDate}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -453,5 +445,4 @@ export function AdminDashboard() {
         </AnimatePresence>
       </div>
     </motion.section>
-  );
 }
