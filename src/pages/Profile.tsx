@@ -1,193 +1,249 @@
 import { useState, useEffect } from "react";
-import { useAuth, db, auth } from "../components/AuthContext";
+import { useAuth, db, auth, Address } from "../components/AuthContext";
 import { Navigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { MapPin, Phone, ShoppingBag, Clock, Package, User, LogOut, CheckCircle2, ChevronRight, AlertTriangle, X } from "lucide-react";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { MapPin, Phone, ShoppingBag, Clock, Package, User, LogOut, CheckCircle2, ChevronRight, AlertTriangle, X, Edit2, Trash2, Plus, Receipt, RotateCcw } from "lucide-react";
+import { ref, push, set, update, remove } from "firebase/database";
+import { useCart } from "../components/CartContext";
 
 export function Profile() {
-  const { user, logout, profileData, userOrders } = useAuth();
+  const { user, logout, profileData, userOrders, userAddresses } = useAuth();
+  const { addToCart } = useCart();
   const [activeTab, setActiveTab] = useState('orders');
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
   const [isEditingAddress, setIsEditingAddress] = useState(false);
-  const [phone, setPhone] = useState("");
-  const [autoAddress, setAutoAddress] = useState("");
-  const [manualAddress, setManualAddress] = useState("");
-  const [lat, setLat] = useState("");
-  const [lng, setLng] = useState("");
-  const [isLoadingAddress, setIsLoadingAddress] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   const [addressError, setAddressError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [accuracy, setAccuracy] = useState<number | null>(null);
-  const [hasInitialized, setHasInitialized] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  
+  const [formData, setFormData] = useState({
+    fullName: "",
+    phone: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "",
+    pincode: "",
+    landmark: "",
+    isDefault: false
+  });
 
-  const timelineSteps = ["Processing", "Preparing", "Shipped", "Out for Delivery", "Delivered"];
+  const timelineSteps = ["Processing", "Shipped", "Out for Delivery", "Delivered"];
 
-  useEffect(() => {
-    if (profileData && !hasInitialized) {
-      setPhone(profileData.phone || "");
-      setAutoAddress(profileData.autoAddress || profileData.address || "");
-      setManualAddress(profileData.manualAddress || "");
-      setLat(profileData.lat || "");
-      setLng(profileData.lng || "");
-      setHasInitialized(true);
-      
-      if (!profileData.phone && !profileData.address && !profileData.autoAddress && !profileData.manualAddress) {
-        setIsEditingAddress(true);
+  const handleReorder = (order: any) => {
+    order.items?.forEach((item: any) => {
+      if (item.product) {
+        addToCart(item.product, item.quantity);
       }
-    }
-  }, [profileData, hasInitialized]);
+    });
+    setToastMessage("Items added to cart!");
+    setTimeout(() => setToastMessage(""), 3000);
+  };
 
-  const handleGetLocation = () => {
-    setIsLoadingAddress(true);
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(async (position) => {
-        const latitude = position.coords.latitude;
-        const longitude = position.coords.longitude;
-        setLat(latitude.toFixed(6));
-        setLng(longitude.toFixed(6));
-        setAccuracy(Math.round(position.coords.accuracy));
-        
-        try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
-          const data = await res.json();
-          if (data && data.display_name) {
-          setAutoAddress(data.display_name);
-          }
-        } catch (e) {
-          console.log("Geocoding failed, using coordinates instead.");
-        } finally {
-          setIsLoadingAddress(false);
+  const handlePrintInvoice = (order: any) => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+    
+    const content = `
+      <html>
+        <head>
+          <title>Invoice - ${order.id}</title>
+          <style>
+            body { font-family: system-ui, sans-serif; padding: 40px; color: #1a1a1a; }
+            .header { display: flex; justify-content: space-between; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 30px; }
+            .title { font-size: 24px; font-weight: bold; margin: 0; }
+            .subtitle { color: #666; font-size: 14px; }
+            .details { margin-bottom: 30px; display: flex; justify-content: space-between; }
+            table { border-collapse: collapse; margin-bottom: 30px; width: 100%; }
+            th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+            th { background: #f9f9f9; color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+            .totals { width: 300px; margin-left: auto; }
+            .totals-row { display: flex; justify-content: space-between; padding: 8px 0; }
+            .totals-row.bold { font-weight: bold; font-size: 18px; border-top: 2px solid #eee; margin-top: 8px; padding-top: 16px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div>
+              <h1 class="title">INVOICE</h1>
+              <p class="subtitle">Palnadu Spices</p>
+            </div>
+            <div style="text-align: right">
+              <p style="margin:0; font-weight:bold;">Order #${order.id?.slice(-8).toUpperCase()}</p>
+              <p class="subtitle">${order.date}</p>
+            </div>
+          </div>
+          
+          <div class="details">
+            <div>
+              <p style="margin:0 0 5px 0; font-size: 12px; color: #666; text-transform: uppercase;">Billed To</p>
+              <p style="margin:0; font-weight:bold;">${order.customerName}</p>
+              <p style="margin:5px 0; color:#444;">${order.phone}</p>
+              <p style="margin:0; color:#444; max-width: 250px;">${order.address}</p>
+            </div>
+            <div style="text-align: right">
+              <p style="margin:0 0 5px 0; font-size: 12px; color: #666; text-transform: uppercase;">Payment Method</p>
+              <p style="margin:0; font-weight:bold; text-transform: uppercase;">${order.paymentMethod || 'UPI'}</p>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th style="text-align:right">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.items?.map((item: any) => `
+                <tr>
+                  <td>${item.product?.name || item.name}</td>
+                  <td>${item.quantity}</td>
+                  <td>₹${item.product?.price || item.price}</td>
+                  <td style="text-align:right">₹${(item.product?.price || item.price) * item.quantity}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <div class="totals">
+            <div class="totals-row">
+              <span>Subtotal</span>
+              <span>₹${order.subtotal || order.total}</span>
+            </div>
+            <div class="totals-row">
+              <span>Tax (5% GST)</span>
+              <span>₹${order.tax || 0}</span>
+            </div>
+            <div class="totals-row">
+              <span>Shipping</span>
+              <span>${order.shipping === 0 ? 'Free' : `₹${order.shipping || 0}`}</span>
+            </div>
+            <div class="totals-row bold">
+              <span>Total</span>
+              <span>₹${order.total}</span>
+            </div>
+          </div>
+          
+          <script>
+            window.onload = () => { window.print(); setTimeout(() => window.close(), 500); }
+          </script>
+        </body>
+      </html>
+    `;
+    
+    printWindow.document.write(content);
+    printWindow.document.close();
+  };
+
+  const handleAddNewAddress = () => {
+    setFormData({ fullName: "", phone: "", addressLine1: "", addressLine2: "", city: "", state: "", pincode: "", landmark: "", isDefault: userAddresses.length === 0 });
+    setEditingAddressId(null);
+    setIsEditingAddress(true);
+  };
+
+  const handleEditAddress = (addr: Address) => {
+    setFormData({
+      fullName: addr.fullName || "",
+      phone: addr.phone || "",
+      addressLine1: addr.addressLine1 || "",
+      addressLine2: addr.addressLine2 || "",
+      city: addr.city || "",
+      state: addr.state || "",
+      pincode: addr.pincode || "",
+      landmark: addr.landmark || "",
+      isDefault: addr.isDefault || false
+    });
+    setEditingAddressId(addr.id || null);
+    setIsEditingAddress(true);
+  };
+
+  const handleDeleteAddress = async (id: string) => {
+    if (!auth.currentUser) return;
+    try {
+      await remove(ref(db, `users/${auth.currentUser.uid}/addresses/${id}`));
+      const deletedWasDefault = userAddresses.find(a => a.id === id)?.isDefault;
+      if (deletedWasDefault) {
+        const remaining = userAddresses.filter(a => a.id !== id);
+        if (remaining.length > 0) {
+          await update(ref(db, `users/${auth.currentUser.uid}/addresses/${remaining[0].id!}`), { isDefault: true });
         }
-      }, (err) => {
-        console.error(err);
-        setAddressError("Location access denied.");
-        setIsLoadingAddress(false);
+      }
+    } catch (e) {
+      console.error("Error deleting address", e);
+    }
+  };
+
+  const handleSetDefaultAddress = async (id: string) => {
+    if (!auth.currentUser) return;
+    try {
+      const updates: any = {};
+      userAddresses.forEach(addr => {
+        if (addr.id === id) {
+          updates[`users/${auth.currentUser.uid}/addresses/${addr.id}/isDefault`] = true;
+        } else if (addr.isDefault) {
+          updates[`users/${auth.currentUser.uid}/addresses/${addr.id}/isDefault`] = false;
+        }
       });
-    } else {
-      setAddressError("Geolocation not supported.");
-      setIsLoadingAddress(false);
+      await update(ref(db), updates);
+    } catch (e) {
+      console.error("Error setting default address", e);
     }
   };
 
   const handleSaveAddress = async () => {
-    if (!phone || (!autoAddress && !manualAddress)) {
-      setAddressError("Please provide your phone number and delivery address.");
+    if (!formData.fullName || !formData.phone || !formData.addressLine1 || !formData.city || !formData.state || !formData.pincode) {
+      setAddressError("Please fill in all required fields (Name, Phone, Address Line 1, City, State, Pincode).");
       return;
     }
-
-    const isSame = phone === (profileData?.phone || "") &&
-                   manualAddress === (profileData?.manualAddress || "") &&
-                   autoAddress === (profileData?.autoAddress || "");
-
-    if (isSame) {
-      setAddressError("");
-      setIsEditingAddress(false);
-      return;
-    }
-
     setAddressError("");
     setIsSaving(true);
     
-    if (!auth.currentUser) {
-      setIsSaving(false);
-      return;
-    }
-
     try {
-      const finalAddress = `${manualAddress ? manualAddress + ', ' : ''}${autoAddress}`;
+      if (!auth.currentUser) return;
       
-      let prevAddresses = profileData?.savedAddresses || [];
-      if (profileData?.address && profileData.address !== finalAddress) {
-        const oldAddressObj = {
-          id: "addr-" + Date.now(),
-          phone: profileData.phone || "",
-          lat: profileData.lat || "",
-          lng: profileData.lng || "",
-          autoAddress: profileData.autoAddress || "",
-          manualAddress: profileData.manualAddress || "",
-          address: profileData.address || ""
-        };
-        if (!prevAddresses.some((a: any) => a.address === oldAddressObj.address)) {
-          prevAddresses = [oldAddressObj, ...prevAddresses];
-        }
+      let finalIsDefault = formData.isDefault;
+      if (userAddresses.length === 0) finalIsDefault = true;
+
+      const newAddress = {
+        fullName: formData.fullName,
+        phone: formData.phone,
+        addressLine1: formData.addressLine1,
+        addressLine2: formData.addressLine2,
+        city: formData.city,
+        state: formData.state,
+        pincode: formData.pincode,
+        landmark: formData.landmark,
+        isDefault: finalIsDefault
+      };
+
+      if (finalIsDefault) {
+        const updates: any = {};
+        userAddresses.forEach(addr => {
+           if (addr.isDefault && addr.id !== editingAddressId) {
+             updates[`users/${auth.currentUser.uid}/addresses/${addr.id}/isDefault`] = false;
+           }
+        });
+        await update(ref(db), updates);
       }
-      prevAddresses = prevAddresses.filter((a: any) => a.address !== finalAddress);
 
-      // Sanitize payload: Removes hidden undefined values that crash Firestore
-      const payload = JSON.parse(JSON.stringify({
-        phone: phone || "", 
-        lat: lat || "", 
-        lng: lng || "",
-        autoAddress: autoAddress || "", 
-        manualAddress: manualAddress || "",
-        address: finalAddress || "",
-        name: user?.name || "User",
-        email: user?.email || "",
-        savedAddresses: prevAddresses || []
-      }));
+      if (editingAddressId) {
+        await update(ref(db, `users/${auth.currentUser.uid}/addresses/${editingAddressId}`), newAddress);
+      } else {
+        const newRef = push(ref(db, `users/${auth.currentUser.uid}/addresses`));
+        await set(newRef, newAddress);
+      }
 
-      // Optimistic UI update: Instantly close editor for snappy UX
       setIsEditingAddress(false);
-
-      await setDoc(doc(db, "users", auth.currentUser.uid), {
-        ...payload,
-        lastUpdated: serverTimestamp()
-      }, { merge: true });
-        
-      } catch (err: any) {
-        console.error("Error saving address:", err);
-        setAddressError(err.message || "Failed to save address.");
-        setIsEditingAddress(true); // Re-open if it actually failed
-      } finally {
-        setIsSaving(false);
-      }
-  };
-
-  const handleSetDefaultAddress = async (addr: any) => {
-    if (!auth.currentUser) return;
-    try {
-      let prevAddresses = profileData?.savedAddresses || [];
-      if (profileData?.address) {
-        const oldAddressObj = {
-          id: "addr-" + Date.now(),
-          phone: profileData.phone || "",
-          lat: profileData.lat || "",
-          lng: profileData.lng || "",
-          autoAddress: profileData.autoAddress || "",
-          manualAddress: profileData.manualAddress || "",
-          address: profileData.address
-        };
-        if (!prevAddresses.some((a: any) => a.address === oldAddressObj.address)) {
-          prevAddresses = [oldAddressObj, ...prevAddresses];
-        }
-      }
-      prevAddresses = prevAddresses.filter((a: any) => a.id !== addr.id && a.address !== addr.address);
-
-      const payload = JSON.parse(JSON.stringify({
-        phone: addr.phone || "",
-        lat: addr.lat || "",
-        lng: addr.lng || "",
-        autoAddress: addr.autoAddress || "",
-        manualAddress: addr.manualAddress || "",
-        address: addr.address || "",
-        savedAddresses: prevAddresses
-      }));
-
-      await setDoc(doc(db, "users", auth.currentUser.uid), {
-        ...payload,
-        lastUpdated: serverTimestamp()
-      }, { merge: true });
-      
-      setPhone(addr.phone || "");
-      setAutoAddress(addr.autoAddress || "");
-      setManualAddress(addr.manualAddress || "");
-      setLat(addr.lat || "");
-      setLng(addr.lng || "");
-    } catch (err) {
-      console.error("Error setting default address:", err);
+    } catch (e: any) {
+      setAddressError(e.message || "Failed to save address.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -218,35 +274,31 @@ export function Profile() {
                 <p className="text-brand-text/40 text-sm">Loading details...</p>
               ) : isEditingAddress ? (
                 <div className="flex flex-col gap-3">
-                  <p className="text-[10px] tracking-widest uppercase text-brand-text/50 font-medium mb-1">Update Delivery Details</p>
+                  <p className="text-[10px] tracking-widest uppercase text-brand-text/50 font-medium mb-1">{editingAddressId ? "Edit" : "Add"} Delivery Address</p>
                   {addressError && <p className="text-red-500 text-xs">{addressError}</p>}
-                  <input type="tel" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
                   
-                  <div className="flex gap-2">
-                    <input type="text" placeholder="Latitude" value={lat} readOnly className="w-1/2 bg-brand-bg/50 border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text/40 cursor-not-allowed" />
-                    <input type="text" placeholder="Longitude" value={lng} readOnly className="w-1/2 bg-brand-bg/50 border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text/40 cursor-not-allowed" />
+                  <input type="text" placeholder="Full Name *" value={formData.fullName} onChange={(e) => setFormData({...formData, fullName: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                  <input type="tel" placeholder="Phone Number *" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                  <input type="text" placeholder="Address Line 1 (House No, Building) *" value={formData.addressLine1} onChange={(e) => setFormData({...formData, addressLine1: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                  <input type="text" placeholder="Address Line 2 (Area, Street)" value={formData.addressLine2} onChange={(e) => setFormData({...formData, addressLine2: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                  <div className="grid grid-cols-2 gap-3">
+                    <input type="text" placeholder="City *" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                    <input type="text" placeholder="State *" value={formData.state} onChange={(e) => setFormData({...formData, state: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
                   </div>
-                  {accuracy !== null && (
-                    <p className="text-[10px] text-brand-text/50 ml-1 -mt-1 font-medium tracking-wide">Accuracy: within {accuracy} meters</p>
-                  )}
+                  <div className="grid grid-cols-2 gap-3">
+                    <input type="text" placeholder="Pincode *" value={formData.pincode} onChange={(e) => setFormData({...formData, pincode: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                    <input type="text" placeholder="Landmark" value={formData.landmark} onChange={(e) => setFormData({...formData, landmark: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                  </div>
                   
-                  <button onClick={handleGetLocation} disabled={isLoadingAddress} className="w-full py-2.5 bg-brand-text text-brand-bg text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-brand-text/80 transition-colors flex justify-center items-center gap-2">
-                    {isLoadingAddress ? "Detecting Location..." : <><MapPin className="w-3 h-3" /> Detect Location</>}
-                  </button>
+                  <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                    <input type="checkbox" checked={formData.isDefault} onChange={(e) => setFormData({...formData, isDefault: e.target.checked})} className="w-4 h-4 accent-brand-red rounded" />
+                    <span className="text-sm text-brand-text/80">Set as default address</span>
+                  </label>
 
-                  {autoAddress && (
-                    <div className="flex items-center gap-2 text-green-500 text-xs font-medium bg-green-500/10 p-3 rounded-xl border border-green-500/20 mt-1">
-                      <CheckCircle2 className="w-4 h-4" /> Auto Location Detected
-                    </div>
-                  )}
-                  <textarea placeholder="Manual Entry (House No, Flat, Landmark)" value={manualAddress} onChange={(e) => setManualAddress(e.target.value)} rows={2} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors resize-none mt-1"></textarea>
-                  
-                  <div className="flex gap-2 mt-1">
-                    {(profileData?.autoAddress || profileData?.address) && (
-                      <button onClick={() => setIsEditingAddress(false)} className="w-1/3 py-3 border border-brand-text/20 text-brand-text text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-brand-surface transition-colors">
-                        Cancel
-                      </button>
-                    )}
+                  <div className="flex gap-2 mt-3">
+                    <button onClick={() => setIsEditingAddress(false)} className="w-1/3 py-3 border border-brand-text/20 text-brand-text text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-brand-surface transition-colors">
+                      Cancel
+                    </button>
                     <button onClick={handleSaveAddress} disabled={isSaving} className="flex-1 py-3 bg-brand-red text-brand-bg text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-brand-red-light transition-colors disabled:opacity-50">
                       {isSaving ? "Saving..." : "Save Address"}
                     </button>
@@ -256,40 +308,33 @@ export function Profile() {
                 <div className="flex flex-col gap-4 text-brand-text/80 text-sm font-light">
                   <div className="flex flex-col"><span className="text-brand-text/40 text-xs tracking-widest uppercase mb-1">Email</span>{user.email}</div>
                   
-                  <div className="bg-brand-bg p-4 rounded-xl border border-brand-red/30 relative mt-2 shadow-sm">
-                    <span className="absolute top-0 right-0 bg-brand-red text-brand-bg text-[9px] font-bold tracking-widest uppercase px-2 py-1 rounded-bl-lg rounded-tr-xl">Active Default</span>
-                    <div className="flex flex-col pr-16 mb-4">
-                      <span className="text-brand-red text-[10px] font-bold tracking-widest uppercase mb-1">Default Address</span>
-                      <span className="text-brand-text text-sm font-medium mb-1">{profileData.phone || "No phone provided"}</span>
-                      <span className="leading-relaxed text-brand-text/80 text-sm mb-1">{profileData.manualAddress || "No manual address provided"}</span>
-                      {profileData.autoAddress && (
-                        <span className="text-green-500 text-[10px] font-bold tracking-widest uppercase flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Auto Location Detected</span>
-                      )}
-                    </div>
-                    <button onClick={() => { setIsEditingAddress(true); handleGetLocation(); }} className="w-full py-2.5 border border-brand-text/20 text-brand-text text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-brand-surface transition-colors">
-                      Edit Default Address
+                  <div className="mt-2 flex flex-col gap-3">
+                    <h4 className="text-xs tracking-widest uppercase text-brand-text/50 font-medium mb-2">Saved Addresses</h4>
+                    {userAddresses.length === 0 && <p className="text-sm">No addresses saved yet.</p>}
+                    {userAddresses.map((addr: Address) => (
+                      <div key={addr.id} className={`p-4 rounded-xl border relative transition-colors ${addr.isDefault ? 'border-brand-red/50 bg-brand-red/5 shadow-sm' : 'border-brand-text/10 bg-brand-surface/30 hover:border-brand-text/30'}`}>
+                        {addr.isDefault && <span className="absolute top-0 right-0 bg-brand-red text-brand-bg text-[9px] font-bold tracking-widest uppercase px-2 py-1 rounded-bl-lg rounded-tr-xl">Default</span>}
+                        <div className="flex flex-col pr-12 gap-1">
+                          <p className="text-brand-text text-sm font-medium">{addr.fullName} <span className="text-brand-text/60 ml-2">{addr.phone}</span></p>
+                          <div>
+                            <p className="text-brand-text/80 text-sm leading-relaxed">{addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ''}</p>
+                            <p className="text-brand-text/80 text-sm leading-relaxed">{addr.city}, {addr.state} - {addr.pincode}</p>
+                            {addr.landmark && <p className="text-brand-text/60 text-xs mt-1">Landmark: {addr.landmark}</p>}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 mt-4">
+                          {!addr.isDefault && (
+                            <button onClick={() => handleSetDefaultAddress(addr.id!)} className="flex-1 py-1.5 border border-brand-text/20 text-brand-text text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-brand-surface transition-colors">Set Default</button>
+                          )}
+                          <button onClick={() => handleEditAddress(addr)} className="p-2 bg-brand-text/5 hover:bg-brand-text/10 text-brand-text rounded-lg transition-colors" title="Edit Address"><Edit2 className="w-4 h-4" /></button>
+                          <button onClick={() => handleDeleteAddress(addr.id!)} className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-colors" title="Delete Address"><Trash2 className="w-4 h-4" /></button>
+                        </div>
+                      </div>
+                    ))}
+                    <button onClick={handleAddNewAddress} className="w-full py-3 mt-2 border border-dashed border-brand-text/30 text-brand-text text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-brand-surface hover:border-brand-text/50 transition-colors flex items-center justify-center gap-2">
+                      <Plus className="w-4 h-4" /> Add New Address
                     </button>
                   </div>
-
-                  {profileData?.savedAddresses && profileData.savedAddresses.length > 0 && (
-                    <div className="mt-4 flex flex-col gap-3 border-t border-brand-text/10 pt-6">
-                      <h4 className="text-xs tracking-widest uppercase text-brand-text/50 font-medium mb-2">Previous Addresses</h4>
-                      {profileData.savedAddresses.map((addr: any) => (
-                        <div key={addr.id} className="bg-brand-surface/30 p-4 rounded-xl border border-brand-text/10 flex flex-col gap-3">
-                          <div>
-                            <p className="text-brand-text text-sm font-medium mb-1">{addr.phone}</p>
-                            <p className="text-brand-text/80 text-sm leading-relaxed mb-1">{addr.manualAddress || "No manual address provided"}</p>
-                            {addr.autoAddress && (
-                              <p className="text-green-500 text-[10px] font-bold tracking-widest uppercase flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Auto Location Detected</p>
-                            )}
-                          </div>
-                          <button onClick={() => handleSetDefaultAddress(addr)} className="w-full py-2 bg-brand-text/5 hover:bg-brand-text/10 border border-brand-text/10 text-brand-text text-[10px] font-bold uppercase tracking-widest rounded-lg transition-colors">
-                            Set as Default
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
               )}
             </div>
@@ -336,25 +381,87 @@ export function Profile() {
                           className="border-t border-brand-text/5 bg-brand-surface/10"
                         >
                           <div className="p-6 flex flex-col gap-6">
-                            <div className="flex flex-col gap-3">
-                              <h4 className="text-xs tracking-widest uppercase font-medium text-brand-text/50">Items</h4>
-                              {order.items?.map((item: any, i: number) => (
-                                <div key={i} className="flex justify-between items-center text-sm">
-                                  <span className="text-brand-text/80"><span className="font-bold text-brand-text mr-2">{item.quantity}x</span> {item.product?.name || item.name}</span>
-                                  <span className="font-serif">₹{(item.product?.price || item.price) * item.quantity}</span>
-                                </div>
-                              ))}
+                            {/* Status Timeline */}
+                            <div className="px-2 py-8 mb-2 overflow-x-auto hide-scrollbar">
+                              <div className="flex justify-between relative min-w-[300px]">
+                                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-brand-text/10 -translate-y-1/2"></div>
+                                <div 
+                                  className="absolute top-1/2 left-0 h-0.5 bg-brand-red transition-all duration-500 -translate-y-1/2" 
+                                  style={{ width: `${(Math.max(0, timelineSteps.indexOf(order.status)) / (timelineSteps.length - 1)) * 100}%` }}
+                                ></div>
+                                
+                                {timelineSteps.map((step, idx) => {
+                                  const stepIndex = timelineSteps.indexOf(order.status);
+                                  const effectiveStepIndex = stepIndex >= 0 ? stepIndex : 0; 
+                                  const isCompleted = effectiveStepIndex >= idx;
+                                  const isCurrent = effectiveStepIndex === idx;
+                                  
+                                  return (
+                                    <div key={step} className="relative z-10 flex flex-col items-center gap-2">
+                                      <div className={`w-4 h-4 rounded-full border-2 ${isCompleted ? 'bg-brand-red border-brand-red shadow-[0_0_10px_rgba(255,51,51,0.4)]' : 'bg-brand-surface border-brand-text/20'} transition-all duration-500`} />
+                                      <span className={`text-[9px] uppercase tracking-widest font-bold absolute top-6 whitespace-nowrap transition-colors duration-500 ${isCurrent ? 'text-brand-red' : isCompleted ? 'text-brand-text' : 'text-brand-text/40'}`}>{step}</span>
+                                    </div>
+                                  )
+                                })}
+                              </div>
                             </div>
-                            <div className="flex flex-col gap-3 pt-4 border-t border-brand-text/5">
-                              <h4 className="text-xs tracking-widest uppercase font-medium text-brand-text/50">Payment Details</h4>
-                              <div className="flex justify-between text-sm">
-                                <span className="text-brand-text/80">Method</span>
-                                <span className="uppercase font-medium text-brand-text">{order.paymentMethod || 'UPI'}</span>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                              <div className="flex flex-col gap-3">
+                                <h4 className="text-xs tracking-widest uppercase font-medium text-brand-text/50">Items</h4>
+                                {order.items?.map((item: any, i: number) => (
+                                  <div key={i} className="flex justify-between items-center text-sm">
+                                    <span className="text-brand-text/80"><span className="font-bold text-brand-text mr-2">{item.quantity}x</span> {item.product?.name || item.name}</span>
+                                    <span className="font-serif">₹{(item.product?.price || item.price) * item.quantity}</span>
+                                  </div>
+                                ))}
                               </div>
-                              <div className="flex justify-between text-sm">
-                                <span className="text-brand-text/80">Shipping</span>
-                                <span className="font-serif">{order.shipping === 0 ? 'Free' : `₹${order.shipping}`}</span>
+                              <div className="flex flex-col gap-3 md:pl-8 md:border-l border-brand-text/5">
+                                <h4 className="text-xs tracking-widest uppercase font-medium text-brand-text/50">Summary</h4>
+                                
+                                <div className="flex flex-col gap-1 text-sm mb-2 text-brand-text/80">
+                                  <span className="font-medium text-brand-text">Delivery To:</span>
+                                  <span className="leading-relaxed text-xs">{order.address || "Address not available"}</span>
+                                  <span className="mt-1 text-xs">Phone: {order.phone}</span>
+                                </div>
+
+                                <div className="flex justify-between text-sm pt-2 border-t border-brand-text/5">
+                                  <span className="text-brand-text/80">Payment Method</span>
+                                  <span className="font-medium uppercase">{order.paymentMethod || 'UPI'}</span>
+                                </div>
+
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-brand-text/80">Subtotal</span>
+                                  <span className="font-serif">₹{order.subtotal || order.total}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-brand-text/80">Shipping</span>
+                                  <span className="font-serif">{order.shipping === 0 ? 'Free' : `₹${order.shipping || 0}`}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-brand-text/80">Tax</span>
+                                  <span className="font-serif">₹{order.tax || 0}</span>
+                                </div>
+                                <div className="flex justify-between text-sm font-medium pt-2 border-t border-brand-text/5 mt-1">
+                                  <span className="text-brand-text">Total</span>
+                                  <span className="font-serif text-brand-text">₹{order.total}</span>
+                                </div>
                               </div>
+                            </div>
+                            
+                            <div className="flex flex-wrap gap-4 pt-6 border-t border-brand-text/5">
+                              <button 
+                                onClick={() => handlePrintInvoice(order)}
+                                className="px-6 py-2.5 bg-brand-surface border border-brand-text/10 hover:border-brand-text/30 text-brand-text text-xs font-bold tracking-widest uppercase rounded-full transition-colors flex items-center gap-2"
+                              >
+                                <Receipt className="w-4 h-4" /> Invoice
+                              </button>
+                              <button 
+                                onClick={() => handleReorder(order)}
+                                className="px-6 py-2.5 bg-brand-text text-brand-bg hover:bg-brand-text/80 text-xs font-bold tracking-widest uppercase rounded-full transition-colors flex items-center gap-2"
+                              >
+                                <RotateCcw className="w-4 h-4" /> Reorder
+                              </button>
                             </div>
                           </div>
                         </motion.div>
@@ -402,6 +509,21 @@ export function Profile() {
               </div>
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] bg-brand-text text-brand-bg px-6 py-3 rounded-full text-xs font-bold tracking-widest uppercase shadow-2xl flex items-center gap-3"
+          >
+            <CheckCircle2 className="w-4 h-4 text-green-400" />
+            {toastMessage}
+          </motion.div>
         )}
       </AnimatePresence>
     </section>

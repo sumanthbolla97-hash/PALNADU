@@ -1,8 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { getFirestore, onSnapshot, doc, collection, query, where, orderBy } from 'firebase/firestore';
-import { getDatabase } from 'firebase/database';
+import { getDatabase, ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDQOXEDOZihk6KP6SMAf4HP8UtIigcWbbs",
@@ -17,8 +16,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const rtdb = getDatabase(app);
+export const db = getDatabase(app);
 const googleProvider = new GoogleAuthProvider();
 
 interface User {
@@ -28,10 +26,24 @@ interface User {
   photoURL?: string;
 }
 
+export interface Address {
+  id?: string;
+  fullName: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  landmark?: string;
+  isDefault: boolean;
+}
+
 interface AuthContextType {
   user: User | null;
   profileData: any;
   userOrders: any[];
+  userAddresses: Address[];
   loginWithEmail: (email: string, pass: string) => Promise<void>;
   signupWithEmail: (email: string, pass: string, name: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
@@ -60,11 +72,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return [];
     }
   });
+  const [userAddresses, setUserAddresses] = useState<Address[]>(() => {
+    try {
+      const cached = localStorage.getItem('palnadu_addresses');
+      return cached && cached !== "undefined" ? JSON.parse(cached) : [];
+    } catch (e) {
+      return [];
+    }
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let unsubProfile: (() => void) | undefined;
     let unsubOrders: (() => void) | undefined;
+    let unsubAddresses: (() => void) | undefined;
 
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser && firebaseUser.email) {
@@ -75,8 +96,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           photoURL: firebaseUser.photoURL || undefined
         });
 
-        unsubProfile = onSnapshot(doc(db, "users", firebaseUser.uid), (docSnap) => {
-          const data = docSnap.exists() ? docSnap.data() : {};
+        unsubProfile = onValue(ref(db, `users/${firebaseUser.uid}`), (snapshot) => {
+          const data = snapshot.val() || {};
           setProfileData(data);
           localStorage.setItem('palnadu_profile', JSON.stringify(data));
         }, (error) => {
@@ -84,15 +105,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setProfileData({}); // Fallback to prevent infinite loading
         });
 
-        // Removed orderBy to prevent "Missing Composite Index" crash in Firestore
-        const q = query(collection(db, "orders"), where("userId", "==", firebaseUser.uid));
-        unsubOrders = onSnapshot(q, (snap) => {
-          const orders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const q = query(ref(db, "orders"), orderByChild("userId"), equalTo(firebaseUser.uid));
+        unsubOrders = onValue(q, (snap) => {
+          const data = snap.val() || {};
+          const orders = Object.entries(data).map(([key, val]: [string, any]) => ({ id: key, ...val }));
           
           // Client-side sort to ensure newest orders are at the top
           orders.sort((a: any, b: any) => {
-            const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
-            const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+            const timeA = a.createdAt || 0;
+            const timeB = b.createdAt || 0;
             return timeB - timeA;
           });
           
@@ -102,14 +123,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.error("Orders Sync Error:", error);
           setUserOrders([]); // Fallback to prevent infinite loading
         });
+
+        const addressesRef = ref(db, `users/${firebaseUser.uid}/addresses`);
+        unsubAddresses = onValue(addressesRef, (snap) => {
+          const data = snap.val() || {};
+          const addresses = Object.entries(data).map(([key, val]: [string, any]) => ({ id: key, ...val } as Address));
+          setUserAddresses(addresses);
+          localStorage.setItem('palnadu_addresses', JSON.stringify(addresses));
+        }, (error) => {
+          console.error("Addresses Sync Error:", error);
+          setUserAddresses([]);
+        });
       } else {
         setUser(null);
         setProfileData(null);
         setUserOrders([]);
+        setUserAddresses([]);
         localStorage.removeItem('palnadu_profile');
         localStorage.removeItem('palnadu_orders');
+        localStorage.removeItem('palnadu_addresses');
         if (unsubProfile) unsubProfile();
         if (unsubOrders) unsubOrders();
+        if (unsubAddresses) unsubAddresses();
       }
       setLoading(false);
     });
@@ -118,6 +153,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       unsubscribe();
       if (unsubProfile) unsubProfile();
       if (unsubOrders) unsubOrders();
+      if (unsubAddresses) unsubAddresses();
     };
   }, []);
 
@@ -156,7 +192,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAdmin = user?.email === 'sumanthbolla97@gmail.com';
 
   return (
-    <AuthContext.Provider value={{ user, profileData, userOrders, loginWithEmail, signupWithEmail, loginWithGoogle, logout, isAdmin, loading }}>
+    <AuthContext.Provider value={{ user, profileData, userOrders, userAddresses, loginWithEmail, signupWithEmail, loginWithGoogle, logout, isAdmin, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );

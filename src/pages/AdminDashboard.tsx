@@ -3,7 +3,7 @@ import { useAuth, db } from "../components/AuthContext";
 import { Navigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { Package, Users, ShoppingBag, Activity, Search, TrendingUp, Clock, ChevronRight, ChevronDown, MapPin, Phone, LayoutDashboard, Settings, Bell, Tag, ArrowUpRight, DollarSign, Plus, Edit, Trash2, Menu, X, LogOut, ExternalLink, MoreVertical } from "lucide-react";
-import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, doc, updateDoc } from "firebase/firestore";
+import { ref, onValue, push, set, update, serverTimestamp } from "firebase/database";
 
 export function AdminDashboard() {
   const { user, isAdmin, logout } = useAuth();
@@ -12,6 +12,11 @@ export function AdminDashboard() {
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   
+  // Bulk Update States
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+  const [bulkStatus, setBulkStatus] = useState<string>('');
+  const [isUpdating, setIsUpdating] = useState(false);
+
   // Real-time Database States
   const [orders, setOrders] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
@@ -21,23 +26,28 @@ export function AdminDashboard() {
     if (!isAdmin) return;
 
     // 1. Real-time Orders Listener
-    const unsubscribeOrders = onSnapshot(
-      query(collection(db, "orders"), orderBy("createdAt", "desc")),
-      (snapshot) => setOrders(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))),
+    const unsubscribeOrders = onValue(ref(db, "orders"), (snapshot) => {
+      const data = snapshot.val() || {};
+      const ordersList = Object.entries(data).map(([key, val]: [string, any]) => ({ id: key, ...val }));
+      ordersList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      setOrders(ordersList);
+    },
       (error) => console.log("Orders listener error (safe to ignore if DB is empty):", error.message)
     );
 
     // 2. Real-time Products Listener
-    const unsubscribeProducts = onSnapshot(
-      collection(db, "products"),
-      (snapshot) => setProducts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))),
+    const unsubscribeProducts = onValue(ref(db, "products"), (snapshot) => {
+      const data = snapshot.val() || {};
+      setProducts(Object.entries(data).map(([key, val]: [string, any]) => ({ id: key, ...val })));
+    },
       (error) => console.log("Products listener error:", error.message)
     );
 
     // 3. Real-time Customers Listener
-    const unsubscribeCustomers = onSnapshot(
-      collection(db, "users"),
-      (snapshot) => setCustomers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))),
+    const unsubscribeCustomers = onValue(ref(db, "users"), (snapshot) => {
+      const data = snapshot.val() || {};
+      setCustomers(Object.entries(data).map(([key, val]: [string, any]) => ({ id: key, ...val })));
+    },
       (error) => console.log("Customers listener error:", error.message)
     );
 
@@ -51,9 +61,27 @@ export function AdminDashboard() {
   // Real-time Status Update Function
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
-      await updateDoc(doc(db, "orders", orderId), { status: newStatus });
+      await update(ref(db, `orders/${orderId}`), { status: newStatus });
     } catch (error) {
       console.error("Error updating status:", error);
+    }
+  };
+
+  const handleBulkUpdate = async () => {
+    if (!bulkStatus || selectedOrders.length === 0) return;
+    setIsUpdating(true);
+    try {
+      const updates: any = {};
+      selectedOrders.forEach(id => {
+        if (!id.startsWith('ORD-')) updates[`orders/${id}/status`] = bulkStatus;
+      });
+      await update(ref(db), updates);
+      setSelectedOrders([]);
+      setBulkStatus('');
+    } catch (error) {
+      console.error("Error bulk updating status:", error);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -67,7 +95,8 @@ export function AdminDashboard() {
     };
     const order = mockData[type as keyof typeof mockData];
     
-    await addDoc(collection(db, "orders"), {
+    const newOrderRef = push(ref(db, "orders"));
+    await set(newOrderRef, {
       ...order,
       date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
       createdAt: serverTimestamp(),
@@ -76,11 +105,31 @@ export function AdminDashboard() {
   };
 
   // Fallback Mock Data (Shows if Firebase collections are empty)
-  const displayOrders = orders.length > 0 ? orders : [
+  const baseOrders = orders.length > 0 ? orders : [
     { id: "ORD-9921", customerName: "Rahul Sharma", customerEmail: "rahul@example.com", phone: "+91 9876543210", address: "123 Jubilee Hills, Hyd", total: 1250, status: "Processing", date: "10 mins ago", items: [{product: {name: "Palnadu Karam Podi", price: 299, image: "/hero-image.png"}, quantity: 2}], paymentMethod: "UPI" },
     { id: "ORD-9920", customerName: "Sneha Reddy", customerEmail: "sneha@example.com", phone: "+91 8765432109", address: "45 Banjara Hills, Hyd", total: 850, status: "Shipped", date: "2 hours ago", items: [{product: {name: "Guntur Idli Karam", price: 249, image: "/traditional-spices.png"}, quantity: 1}], paymentMethod: "Card" },
     { id: "ORD-9919", customerName: "Karthik V.", customerEmail: "karthik@example.com", phone: "+91 7654321098", address: "789 Indiranagar, Blr", total: 3200, status: "Delivered", date: "1 day ago", items: [{product: {name: "Nallakaram Podi", price: 279, image: "/hero-image.png"}, quantity: 3}], paymentMethod: "UPI" }
   ];
+
+  const displayOrders = baseOrders.filter(order => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      order.id?.toLowerCase().includes(q) ||
+      order.customerName?.toLowerCase().includes(q) ||
+      order.phone?.toLowerCase().includes(q) ||
+      order.customerEmail?.toLowerCase().includes(q)
+    );
+  });
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) setSelectedOrders(displayOrders.map(o => o.id));
+    else setSelectedOrders([]);
+  };
+
+  const toggleOrderSelection = (id: string) => {
+    setSelectedOrders(prev => prev.includes(id) ? prev.filter(orderId => orderId !== id) : [...prev, id]);
+  };
 
   const displayProducts = products.length > 0 ? products : [
     { id: "P-1", name: "Palnadu Karam Podi", price: 299, stock: 145, status: "In Stock", sales: 1240 },
@@ -126,6 +175,8 @@ export function AdminDashboard() {
               <input 
                 type="text" 
                 placeholder="Search orders..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-brand-surface/30 border border-brand-text/10 rounded-full py-3 pl-12 pr-6 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors"
               />
             </div>
@@ -197,11 +248,36 @@ export function AdminDashboard() {
             )}
 
             {activeTab === 'orders' && (
-              <div className="bg-brand-surface/30 rounded-[2rem] border border-brand-text/10 overflow-hidden">
+              <div className="flex flex-col gap-4">
+                <AnimatePresence>
+                  {selectedOrders.length > 0 && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="bg-brand-surface/50 border border-brand-text/10 rounded-2xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                      <span className="text-sm font-medium text-brand-text ml-2">{selectedOrders.length} orders selected</span>
+                      <div className="flex gap-3 items-center w-full md:w-auto">
+                        <select value={bulkStatus} onChange={e => setBulkStatus(e.target.value)} className="bg-brand-bg border border-brand-text/10 rounded-lg px-4 py-2.5 text-sm text-brand-text focus:outline-none focus:border-brand-red w-full md:w-auto cursor-pointer">
+                          <option value="">Update Status...</option>
+                          <option value="Processing">Processing</option>
+                          <option value="Shipped">Shipped</option>
+                          <option value="Out for Delivery">Out for Delivery</option>
+                          <option value="Delivered">Delivered</option>
+                          <option value="Cancelled">Cancelled</option>
+                        </select>
+                        <button onClick={handleBulkUpdate} disabled={isUpdating || !bulkStatus} className="bg-brand-red text-brand-bg px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-brand-red-light transition-colors disabled:opacity-50 whitespace-nowrap">
+                          {isUpdating ? 'Applying...' : 'Apply'}
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <div className="bg-brand-surface/30 rounded-[2rem] border border-brand-text/10 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-brand-surface/50 text-brand-text/60 text-[10px] tracking-[0.2em] uppercase border-b border-brand-text/10">
+                        <th className="py-6 px-6 w-12 text-center">
+                          <input type="checkbox" checked={selectedOrders.length === displayOrders.length && displayOrders.length > 0} onChange={handleSelectAll} className="w-4 h-4 accent-brand-red cursor-pointer" />
+                        </th>
                         <th className="py-6 px-8 font-medium">Order ID</th>
                         <th className="py-6 px-8 font-medium">Customer</th>
                         <th className="py-6 px-8 font-medium">Date</th>
@@ -217,14 +293,25 @@ export function AdminDashboard() {
                             onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
                             className="border-b border-brand-text/5 hover:bg-brand-surface/40 transition-colors group cursor-pointer"
                           >
+                            <td className="py-6 px-6 text-center" onClick={(e) => e.stopPropagation()}>
+                              <input type="checkbox" checked={selectedOrders.includes(order.id)} onChange={() => toggleOrderSelection(order.id)} className="w-4 h-4 accent-brand-red cursor-pointer" />
+                            </td>
                             <td className="py-6 px-8 text-brand-text text-sm font-medium">{order.id?.slice(-6).toUpperCase()}</td>
                             <td className="py-6 px-8 text-brand-text/80 text-sm">{order.customerName}</td>
                             <td className="py-6 px-8 text-brand-text/60 text-sm flex items-center gap-2"><Clock className="w-3 h-3" /> {order.date}</td>
                             <td className="py-6 px-8 text-brand-text text-sm">₹{order.total}</td>
-                            <td className="py-6 px-8">
-                              <span className={`px-3 py-1 rounded-full text-[10px] tracking-widest uppercase font-medium ${order.status === 'Processing' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' : order.status === 'Delivered' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-brand-text/10 text-brand-text/70 border border-brand-text/20'}`}>
-                                {order.status}
-                              </span>
+                            <td className="py-6 px-8" onClick={(e) => e.stopPropagation()}>
+                              <select 
+                                value={order.status}
+                                onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                                className={`px-3 py-1.5 rounded-full text-[10px] tracking-widest uppercase font-bold outline-none cursor-pointer appearance-none ${order.status === 'Processing' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' : order.status === 'Delivered' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : order.status === 'Cancelled' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-brand-text/10 text-brand-text/70 border border-brand-text/20'}`}
+                              >
+                                <option value="Processing" className="text-brand-text bg-brand-bg">Processing</option>
+                                <option value="Shipped" className="text-brand-text bg-brand-bg">Shipped</option>
+                                <option value="Out for Delivery" className="text-brand-text bg-brand-bg">Out for Delivery</option>
+                                <option value="Delivered" className="text-brand-text bg-brand-bg">Delivered</option>
+                                <option value="Cancelled" className="text-brand-text bg-brand-bg">Cancelled</option>
+                              </select>
                             </td>
                             <td className="py-6 px-8 text-right">
                               <button className="text-brand-text/40 hover:text-brand-red transition-colors">
@@ -236,11 +323,35 @@ export function AdminDashboard() {
                           {/* Expanded Order Details Row */}
                           {expandedOrderId === order.id && (
                             <tr className="bg-brand-surface/20 border-b border-brand-text/5">
-                              <td colSpan={6} className="py-8 px-10">
+                              <td colSpan={7} className="py-8 px-10">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                   <div className="flex flex-col gap-4 text-sm text-brand-text/80">
-                                    <div className="flex items-start gap-3"><Phone className="w-4 h-4 text-brand-text/40 mt-0.5" /> <span><strong>Phone:</strong> {order.phone || 'Not provided'}</span></div>
-                                    <div className="flex items-start gap-3"><MapPin className="w-4 h-4 text-brand-text/40 mt-0.5" /> <span><strong>Delivery Address:</strong> <br/><span className="text-brand-text/60 mt-1 block leading-relaxed">{order.address || 'Not provided'}</span></span></div>
+                                    <div className="flex items-start gap-3">
+                                      <Phone className="w-4 h-4 text-brand-text/40 mt-0.5" /> 
+                                      <span><strong>Phone:</strong> {order.phone || 'Not provided'}</span>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                      <MapPin className="w-4 h-4 text-brand-text/40 mt-0.5" /> 
+                                      <div className="flex flex-col gap-1.5">
+                                        <span><strong>Delivery Address:</strong></span>
+                                        {order.fullAddressObj ? (
+                                          <div className="text-brand-text/60 mt-1 flex flex-col gap-0.5 text-sm leading-relaxed">
+                                            <span className="font-medium text-brand-text/80">{order.fullAddressObj.fullName}</span>
+                                            <span>{order.fullAddressObj.addressLine1}{order.fullAddressObj.addressLine2 ? `, ${order.fullAddressObj.addressLine2}` : ''}</span>
+                                            <span>{order.fullAddressObj.city}, {order.fullAddressObj.state} - {order.fullAddressObj.pincode}</span>
+                                            {order.fullAddressObj.landmark && <span className="text-xs mt-0.5 text-brand-text/40">Landmark: {order.fullAddressObj.landmark}</span>}
+                                            {(order.lat && order.lng) && <span className="text-xs mt-0.5 text-brand-text/40">GPS: {order.lat}, {order.lng}</span>}
+                                          </div>
+                                        ) : (
+                                          <span className="text-brand-text/60 mt-1 block leading-relaxed">{order.address || 'Not provided'}</span>
+                                        )}
+                                        {order.address && (
+                                          <a href={`https://www.google.com/maps/search/?api=1&query=${order.lat && order.lng ? `${order.lat},${order.lng}` : encodeURIComponent(order.address)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-brand-red hover:underline tracking-widest uppercase font-bold mt-2">
+                                            <ExternalLink className="w-3 h-3" /> View on Maps
+                                          </a>
+                                        )}
+                                      </div>
+                                    </div>
                                   </div>
                                   <div className="bg-brand-bg rounded-xl p-6 border border-brand-text/5 shadow-inner">
                                     <h4 className="text-xs tracking-widest uppercase font-medium text-brand-text/60 mb-4 flex items-center gap-2"><ShoppingBag className="w-4 h-4" /> Ordered Items</h4>
@@ -259,6 +370,7 @@ export function AdminDashboard() {
                     </tbody>
                   </table>
                 </div>
+              </div>
               </div>
             )}
 
