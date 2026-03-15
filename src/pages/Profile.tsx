@@ -117,10 +117,6 @@ export function Profile() {
               <span>₹${order.subtotal || order.total}</span>
             </div>
             <div class="totals-row">
-              <span>Tax (5% GST)</span>
-              <span>₹${order.tax || 0}</span>
-            </div>
-            <div class="totals-row">
               <span>Shipping</span>
               <span>${order.shipping === 0 ? 'Free' : `₹${order.shipping || 0}`}</span>
             </div>
@@ -443,10 +439,6 @@ export function Profile() {
                                 <div className="flex justify-between text-sm">
                                   <span className="text-brand-text/80">Shipping</span>
                                   <span className="font-serif">{order.shipping === 0 ? 'Free' : `₹${order.shipping || 0}`}</span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                  <span className="text-brand-text/80">Tax</span>
-                                  <span className="font-serif">₹{order.tax || 0}</span>
                                 </div>
                                 <div className="flex justify-between text-sm font-medium pt-2 border-t border-brand-text/5 mt-1">
                                   <span className="text-brand-text">Total</span>

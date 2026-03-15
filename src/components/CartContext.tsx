@@ -83,8 +83,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Centralized Cart Calculations
   const subtotal = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
   const deliveryCharge = subtotal > 500 || subtotal === 0 ? 0 : 50;
-  const tax = Math.round(subtotal * 0.05); // Standard 5% GST calculation
-  const total = subtotal + deliveryCharge + tax;
+  const tax = 0; // Maintained for interface compatibility, set to 0
+  const total = subtotal + deliveryCharge;
   const cartTotal = subtotal; // Maintained for backward compatibility
 
   return (

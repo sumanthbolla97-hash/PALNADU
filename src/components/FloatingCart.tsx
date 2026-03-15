@@ -132,7 +132,7 @@ export function FloatingCart() {
 
       // Generate WhatsApp Message
       const itemList = items.map(item => `${item.quantity}x ${item.product.name}`).join('\n');
-      const waText = `*New Order Alert!*\n\n*Order ID:* ${orderRef.key?.slice(-8).toUpperCase()}\n*Customer:* ${user.name}\n*Phone:* ${deliveryAddress.phone}\n*Address:* ${finalAddressStr}\n\n*Items:*\n${itemList}\n\n*Subtotal:* ₹${subtotal}\n*Tax:* ₹${tax}\n*Shipping:* ${deliveryCharge === 0 ? 'Free' : '₹' + deliveryCharge}\n*Total:* ₹${total}\n*Payment Method:* ${viaWhatsApp ? 'WhatsApp Payment' : paymentMethod.toUpperCase()}`;
+      const waText = `*New Order Alert!*\n\n*Order ID:* ${orderRef.key?.slice(-8).toUpperCase()}\n*Customer:* ${user.name}\n*Phone:* ${deliveryAddress.phone}\n*Address:* ${finalAddressStr}\n\n*Items:*\n${itemList}\n\n*Subtotal:* ₹${subtotal}\n*Shipping:* ${deliveryCharge === 0 ? 'Free' : '₹' + deliveryCharge}\n*Total:* ₹${total}\n*Payment Method:* ${viaWhatsApp ? 'WhatsApp Payment' : paymentMethod.toUpperCase()}`;
       const waUrl = `https://wa.me/917799934943?text=${encodeURIComponent(waText)}`;
       
       setWhatsappUrl(waUrl);
@@ -254,7 +254,6 @@ export function FloatingCart() {
                   <div className="p-6 md:p-8 bg-brand-surface/50 border-t border-brand-text/10 mt-auto shrink-0">
                   <div className="flex flex-col gap-3 mb-6 text-sm font-light text-brand-text/80">
                     <div className="flex justify-between"><span>Subtotal</span><span>₹{subtotal}</span></div>
-                    <div className="flex justify-between"><span>Tax (5% GST)</span><span>₹{tax}</span></div>
                     <div className="flex justify-between"><span>Delivery</span><span>{deliveryCharge === 0 ? <span className="text-green-600 font-medium">Free</span> : `₹${deliveryCharge}`}</span></div>
                     <div className="h-px bg-brand-text/10 my-1" />
                     <div className="flex justify-between text-lg font-serif text-brand-text"><span>Total</span><span>₹{total}</span></div>
