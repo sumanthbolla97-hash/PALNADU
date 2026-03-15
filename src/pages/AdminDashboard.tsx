@@ -92,10 +92,10 @@ export function AdminDashboard() {
   // Mock Data Generators for Testing (A, B, C, D)
   const generateMockOrder = async (type: string) => {
     const mockData = {
-      A: { customerName: "Rahul Sharma", customerEmail: "rahul@example.com", phone: "+91 9876543210", address: "123 Jubilee Hills, Hyderabad, TS", items: [{product: {name: "Palnadu Karam Podi", price: 299, image: "/hero-image.png"}, quantity: 2}], total: 598, status: "Processing", paymentMethod: "UPI" },
+      A: { customerName: "Rahul Sharma", customerEmail: "rahul@example.com", phone: "+91 9876543210", address: "123 Jubilee Hills, Hyderabad, TS", items: [{product: {name: "Palnadu Karam Podi", price: 299, image: "/traditional-spices.png"}, quantity: 2}], total: 598, status: "Processing", paymentMethod: "UPI" },
       B: { customerName: "Sneha Reddy", customerEmail: "sneha@example.com", phone: "+91 8765432109", address: "45 Banjara Hills, Hyderabad, TS", items: [{product: {name: "Guntur Idli Karam", price: 249, image: "/traditional-spices.png"}, quantity: 1}], total: 249, status: "Shipped", paymentMethod: "Card" },
-      C: { customerName: "Karthik V.", customerEmail: "karthik@example.com", phone: "+91 7654321098", address: "789 Indiranagar, Bangalore, KA", items: [{product: {name: "Nallakaram Podi", price: 279, image: "/hero-image.png"}, quantity: 3}], total: 837, status: "Delivered", paymentMethod: "UPI" },
-      D: { customerName: "Ananya S.", customerEmail: "ananya@example.com", phone: "+91 6543210987", address: "12 Anna Nagar, Chennai, TN", items: [{product: {name: "Palnadu Karam Podi", price: 299, image: "/hero-image.png"}, quantity: 5}], total: 1495, status: "Processing", paymentMethod: "COD" },
+      C: { customerName: "Karthik V.", customerEmail: "karthik@example.com", phone: "+91 7654321098", address: "789 Indiranagar, Bangalore, KA", items: [{product: {name: "Nallakaram Podi", price: 279, image: "/traditional-spices.png"}, quantity: 3}], total: 837, status: "Delivered", paymentMethod: "UPI" },
+      D: { customerName: "Ananya S.", customerEmail: "ananya@example.com", phone: "+91 6543210987", address: "12 Anna Nagar, Chennai, TN", items: [{product: {name: "Palnadu Karam Podi", price: 299, image: "/traditional-spices.png"}, quantity: 5}], total: 1495, status: "Processing", paymentMethod: "COD" },
     };
     const order = mockData[type as keyof typeof mockData];
     
@@ -110,9 +110,9 @@ export function AdminDashboard() {
 
   // Fallback Mock Data (Shows if Firebase collections are empty)
   const baseOrders = orders.length > 0 ? orders : [
-    { id: "ORD-9921", customerName: "Rahul Sharma", customerEmail: "rahul@example.com", phone: "+91 9876543210", address: "123 Jubilee Hills, Hyd", total: 1250, status: "Processing", date: "10 mins ago", items: [{product: {name: "Palnadu Karam Podi", price: 299, image: "/hero-image.png"}, quantity: 2}], paymentMethod: "UPI" },
+    { id: "ORD-9921", customerName: "Rahul Sharma", customerEmail: "rahul@example.com", phone: "+91 9876543210", address: "123 Jubilee Hills, Hyd", total: 1250, status: "Processing", date: "10 mins ago", items: [{product: {name: "Palnadu Karam Podi", price: 299, image: "/traditional-spices.png"}, quantity: 2}], paymentMethod: "UPI" },
     { id: "ORD-9920", customerName: "Sneha Reddy", customerEmail: "sneha@example.com", phone: "+91 8765432109", address: "45 Banjara Hills, Hyd", total: 850, status: "Shipped", date: "2 hours ago", items: [{product: {name: "Guntur Idli Karam", price: 249, image: "/traditional-spices.png"}, quantity: 1}], paymentMethod: "Card" },
-    { id: "ORD-9919", customerName: "Karthik V.", customerEmail: "karthik@example.com", phone: "+91 7654321098", address: "789 Indiranagar, Blr", total: 3200, status: "Delivered", date: "1 day ago", items: [{product: {name: "Nallakaram Podi", price: 279, image: "/hero-image.png"}, quantity: 3}], paymentMethod: "UPI" }
+    { id: "ORD-9919", customerName: "Karthik V.", customerEmail: "karthik@example.com", phone: "+91 7654321098", address: "789 Indiranagar, Blr", total: 3200, status: "Delivered", date: "1 day ago", items: [{product: {name: "Nallakaram Podi", price: 279, image: "/traditional-spices.png"}, quantity: 3}], paymentMethod: "UPI" }
   ];
 
   const displayOrders = baseOrders.filter(order => {
