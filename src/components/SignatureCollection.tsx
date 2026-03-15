@@ -1,8 +1,8 @@
-import { useState } from "react";
+import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from "motion/react";
 import { Link } from "react-router-dom";
 import { products, Product } from "../data/products";
-import { X, Plus, Minus, ShoppingBag } from "lucide-react";
+import { X, Plus, Minus, ShoppingBag, CheckCircle } from "lucide-react";
 import { useCart } from "./CartContext";
 
 export function SignatureCollection() {
@@ -19,6 +19,22 @@ export function SignatureCollection() {
   const closeQuickView = () => {
     setSelectedProduct(null);
     document.body.style.overflow = 'unset';
+  };
+
+  const handleAddToCart = (product: Product) => {
+    addToCart(product, 1);
+    toast.custom((t) => (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
+        transition={{ duration: 0.3 }}
+        className="bg-[#1c1c1c] text-[#f0f0f0] border border-[#333] rounded-full shadow-lg px-5 py-3 flex items-center gap-3"
+      >
+        <CheckCircle className="w-5 h-5 text-green-500" />
+        <span className="text-sm font-medium">{product.name} added to cart</span>
+      </motion.div>
+    ));
   };
 
   return (
@@ -94,10 +110,10 @@ export function SignatureCollection() {
                       </div>
                     ) : (
                       <button 
-                        onClick={(e) => { e.stopPropagation(); addToCart(product, 1); }}
-                        className="text-[10px] md:text-xs tracking-[0.2em] uppercase text-brand-red font-medium opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1"
+                        onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
+                        className="px-4 py-2 bg-brand-red text-brand-bg text-[10px] md:text-xs font-bold tracking-widest uppercase rounded-full hover:bg-brand-red-light transition-colors flex items-center gap-2"
                       >
-                        Add to Cart <ShoppingBag className="w-3 h-3 ml-1" />
+                        <ShoppingBag className="w-3 h-3" /> Add to Cart
                       </button>
                     )}
                   </div>

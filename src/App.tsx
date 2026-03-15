@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Toaster } from "react-hot-toast";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
@@ -14,6 +15,20 @@ export default function App() {
   return (
     <Router>
       <div className="min-h-screen flex flex-col bg-brand-bg text-brand-text font-sans selection:bg-brand-red selection:text-brand-bg">
+        <Toaster 
+          position="bottom-center"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: '#1c1c1c',
+              color: '#f0f0f0',
+              border: '1px solid #333',
+              borderRadius: '2rem',
+              padding: '12px 20px',
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+            },
+          }}
+        />
         <Navbar />
         <div className="flex-grow">
           <Routes>
