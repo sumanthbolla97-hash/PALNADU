@@ -1,15 +1,15 @@
-import { useState, useEffect } from "react";
-import { useAuth, db, auth, Address } from "../components/AuthContext";
+import { useState } from "react";
+import { useAuth, db, auth, Address, Order } from "../components/AuthContext";
 import { Navigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { MapPin, ShoppingBag, Clock, Package, LogOut, CheckCircle2, ChevronRight, AlertTriangle, X, Edit2, Trash2, Plus, Receipt, RotateCcw, Loader2 } from "lucide-react";
+import { MapPin, Phone, ShoppingBag, Clock, Package, User, LogOut, CheckCircle2, ChevronRight, AlertTriangle, X, Edit2, Trash2, Plus, Receipt, RotateCcw } from "lucide-react";
 import { ref, push, set, update, remove } from "firebase/database";
 import { useCart } from "../components/CartContext";
-import { CollapsibleSection } from "../components/CollapsibleSection";
 
 export function Profile() {
   const { user, logout, profileData, userOrders, userAddresses } = useAuth();
   const { addToCart } = useCart();
+  const [activeTab, setActiveTab] = useState('orders');
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
   const [isEditingAddress, setIsEditingAddress] = useState(false);
@@ -33,8 +33,8 @@ export function Profile() {
 
   const timelineSteps = ["Processing", "Shipped", "Out for Delivery", "Delivered"];
 
-  const handleReorder = (order: any) => {
-    order.items?.forEach((item: any) => {
+  const handleReorder = (order: Order) => {
+    order.items?.forEach((item) => {
       if (item.product) {
         addToCart(item.product, item.quantity);
       }
@@ -43,7 +43,7 @@ export function Profile() {
     setTimeout(() => setToastMessage(""), 3000);
   };
 
-  const handlePrintInvoice = (order: any) => {
+  const handlePrintInvoice = (order: Order) => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
     
@@ -72,8 +72,8 @@ export function Profile() {
               <p class="subtitle">Palnadu Spices</p>
             </div>
             <div style="text-align: right">
-              <p style="margin:0; font-weight:bold;">Order #${order.id?.slice(-8).toUpperCase()}</p>
-              <p class="subtitle">${order.date}</p>
+              <p style="margin:0; font-weight:bold;">Order #${order.id?.slice(-8)?.toUpperCase() ?? 'N/A'}</p>
+              <p class="subtitle">${new Date(order.createdAt).toLocaleDateString()}</p>
             </div>
           </div>
           
@@ -100,7 +100,7 @@ export function Profile() {
               </tr>
             </thead>
             <tbody>
-              ${order.items?.map((item: any) => `
+              ${order.items?.map((item) => `
                 <tr>
                   <td>${item.product?.name || item.name}</td>
                   <td>${item.quantity}</td>
@@ -247,14 +247,6 @@ export function Profile() {
     return <Navigate to="/login" replace />;
   }
 
-  if (!profileData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-brand-bg">
-        <Loader2 className="w-12 h-12 text-brand-red animate-spin" />
-      </div>
-    );
-  }
-
   return (
     <motion.section 
       initial={{ opacity: 0, scale: 0.98, filter: "blur(8px)" }}
@@ -273,136 +265,15 @@ export function Profile() {
           </Link>
         </motion.div>
 
-        <div className="flex flex-col gap-6">
-          {/* Orders History Panel */}
-          <CollapsibleSection title="Order History" icon={<ShoppingBag className="w-6 h-6" />} defaultOpen={true}>
-            {userOrders.length === 0 ? (
-              <div className="bg-brand-surface/30 p-12 rounded-[2rem] border border-brand-text/10 text-center flex flex-col items-center">
-                <Package className="w-12 h-12 text-brand-text/20 mb-4" />
-                <p className="text-brand-text/60 font-light text-lg">You haven't placed any orders yet.</p>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4">
-                {userOrders.map(order => (
-                  <div key={order.id} className="bg-brand-surface/30 rounded-2xl border border-brand-text/10 overflow-hidden hover:border-brand-text/20 transition-colors">
-                    <div 
-                      onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
-                      className="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 cursor-pointer hover:bg-brand-surface/20 transition-colors"
-                    >
-                      <div>
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className="text-sm font-medium text-brand-text">Order #{order.id.slice(-6).toUpperCase()}</span>
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] tracking-widest uppercase font-medium ${order.status === 'Processing' ? 'bg-yellow-500/10 text-yellow-500' : order.status === 'Delivered' ? 'bg-green-500/10 text-green-500' : 'bg-brand-text/10 text-brand-text/70'}`}>{order.status}</span>
-                        </div>
-                        <div className="text-xs text-brand-text/50 flex items-center gap-2"><Clock className="w-3 h-3" /> {order.date} • {order.items?.length || 0} items</div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-lg font-serif text-brand-text">₹{order.total}</div>
-                        <ChevronRight className={`w-5 h-5 text-brand-text/40 transition-transform ${expandedOrderId === order.id ? 'rotate-90' : ''}`} />
-                      </div>
-                    </div>
-                    
-                    <AnimatePresence>
-                      {expandedOrderId === order.id && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                          className="border-t border-brand-text/5 bg-brand-surface/10 overflow-hidden"
-                        >
-                          <div className="p-6 flex flex-col gap-6">
-                            {/* Status Timeline */}
-                            <div className="px-2 py-8 mb-2 overflow-x-auto hide-scrollbar">
-                              <div className="flex justify-between relative min-w-[300px]">
-                                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-brand-text/10 -translate-y-1/2"></div>
-                                <div 
-                                  className="absolute top-1/2 left-0 h-0.5 bg-brand-red transition-all duration-500 -translate-y-1/2" 
-                                  style={{ width: `${(Math.max(0, timelineSteps.indexOf(order.status)) / (timelineSteps.length - 1)) * 100}%` }}
-                                ></div>
-                                
-                                {timelineSteps.map((step, idx) => {
-                                  const stepIndex = timelineSteps.indexOf(order.status);
-                                  const effectiveStepIndex = stepIndex >= 0 ? stepIndex : 0; 
-                                  const isCompleted = effectiveStepIndex >= idx;
-                                  const isCurrent = effectiveStepIndex === idx;
-                                  
-                                  return (
-                                    <div key={step} className="relative z-10 flex flex-col items-center gap-2">
-                                      <div className={`w-4 h-4 rounded-full border-2 ${isCompleted ? 'bg-brand-red border-brand-red shadow-[0_0_10px_rgba(255,51,51,0.4)]' : 'bg-brand-surface border-brand-text/20'} transition-all duration-500`} />
-                                      <span className={`text-[9px] uppercase tracking-widest font-bold absolute top-6 whitespace-nowrap transition-colors duration-500 ${isCurrent ? 'text-brand-red' : isCompleted ? 'text-brand-text' : 'text-brand-text/40'}`}>{step}</span>
-                                    </div>
-                                  )
-                                })}
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                              <div className="flex flex-col gap-3">
-                                <h4 className="text-xs tracking-widest uppercase font-medium text-brand-text/50">Items</h4>
-                                {order.items?.map((item: any, i: number) => (
-                                  <div key={i} className="flex justify-between items-center text-sm">
-                                    <span className="text-brand-text/80"><span className="font-bold text-brand-text mr-2">{item.quantity}x</span> <Link to={`/product/${item.product.id}`} className="hover:text-brand-red transition-colors">{item.product?.name || item.name}</Link></span>
-                                    <span className="font-serif">₹{(item.product?.price || item.price) * item.quantity}</span>
-                                  </div>
-                                ))}
-                              </div>
-                              <div className="flex flex-col gap-3 md:pl-8 md:border-l border-brand-text/5">
-                                <h4 className="text-xs tracking-widest uppercase font-medium text-brand-text/50">Summary</h4>
-                                
-                                <div className="flex flex-col gap-1 text-sm mb-2 text-brand-text/80">
-                                  <span className="font-medium text-brand-text">Delivery To:</span>
-                                  <span className="leading-relaxed text-xs">{order.address || "Address not available"}</span>
-                                  <span className="mt-1 text-xs">Phone: {order.phone}</span>
-                                </div>
-
-                                <div className="flex justify-between text-sm pt-2 border-t border-brand-text/5">
-                                  <span className="text-brand-text/80">Payment Method</span>
-                                  <span className="font-medium uppercase">{order.paymentMethod || 'UPI'}</span>
-                                </div>
-
-                                <div className="flex justify-between text-sm">
-                                  <span className="text-brand-text/80">Subtotal</span>
-                                  <span className="font-serif">₹{order.subtotal || order.total}</span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                  <span className="text-brand-text/80">Shipping</span>
-                                  <span className="font-serif">{order.shipping === 0 ? 'Free' : `₹${order.shipping || 0}`}</span>
-                                </div>
-                                <div className="flex justify-between text-sm font-medium pt-2 border-t border-brand-text/5 mt-1">
-                                  <span className="text-brand-text">Total</span>
-                                  <span className="font-serif text-brand-text">₹{order.total}</span>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <div className="flex flex-wrap gap-4 pt-6 border-t border-brand-text/5">
-                              <button 
-                                onClick={() => handlePrintInvoice(order)}
-                                className="px-6 py-2.5 bg-brand-surface border border-brand-text/10 hover:border-brand-text/30 text-brand-text text-xs font-bold tracking-widest uppercase rounded-full transition-colors flex items-center gap-2"
-                              >
-                                <Receipt className="w-4 h-4" /> Invoice
-                              </button>
-                              <button 
-                                onClick={() => handleReorder(order)}
-                                className="px-6 py-2.5 bg-brand-text text-brand-bg hover:bg-brand-text/80 text-xs font-bold tracking-widest uppercase rounded-full transition-colors flex items-center gap-2"
-                              >
-                                <RotateCcw className="w-4 h-4" /> Reorder
-                              </button>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CollapsibleSection>
-
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Profile Details Panel */}
-          <CollapsibleSection title="Account Details" icon={<MapPin className="w-5 h-5" />}>
-              {isEditingAddress ? (
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="md:col-span-1 flex flex-col gap-6">
+            <div className="bg-brand-surface/30 p-8 rounded-[2rem] border border-brand-text/10">
+              <h3 className="text-xl font-serif text-brand-text mb-6 flex items-center gap-2 uppercase"><MapPin className="w-5 h-5 text-brand-red" /> SAVED ADDRESSES</h3>
+              
+              {!profileData ? (
+                <p className="text-brand-text/40 text-sm">Loading details...</p>
+              ) : isEditingAddress ? (
                 <div className="flex flex-col gap-3">
                   <p className="text-[10px] tracking-widest uppercase text-brand-text/50 font-medium mb-1">{editingAddressId ? "Edit" : "Add"} Delivery Address</p>
                   {addressError && <p className="text-red-500 text-xs">{addressError}</p>}
@@ -467,7 +338,137 @@ export function Profile() {
                   </div>
                 </div>
               )}
-          </CollapsibleSection>
+            </div>
+          </motion.div>
+
+          {/* Orders History Panel */}
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="md:col-span-2">
+            <h3 className="text-2xl font-serif text-brand-text mb-6 flex items-center gap-3"><ShoppingBag className="w-6 h-6 text-brand-red" /> Order History</h3>
+            
+            {!profileData ? (
+              <p className="text-brand-text/40">Loading orders...</p>
+            ) : userOrders.length === 0 ? (
+              <div className="bg-brand-surface/30 p-12 rounded-[2rem] border border-brand-text/10 text-center flex flex-col items-center">
+                <Package className="w-12 h-12 text-brand-text/20 mb-4" />
+                <p className="text-brand-text/60 font-light text-lg">You haven't placed any orders yet.</p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {userOrders.map(order => (
+                  <div key={order.id} className="bg-brand-surface/30 rounded-2xl border border-brand-text/10 overflow-hidden hover:border-brand-text/20 transition-colors">
+                    <div 
+                      onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
+                      className="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 cursor-pointer hover:bg-brand-surface/20 transition-colors"
+                    >
+                      <div>
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="text-sm font-medium text-brand-text">Order #{order.id?.slice(-6)?.toUpperCase() || 'N/A'}</span>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] tracking-widest uppercase font-medium ${order.status === 'Processing' ? 'bg-yellow-500/10 text-yellow-500' : order.status === 'Delivered' ? 'bg-green-500/10 text-green-500' : 'bg-brand-text/10 text-brand-text/70'}`}>{order.status}</span>
+                        </div>
+                        <div className="text-xs text-brand-text/50 flex items-center gap-2"><Clock className="w-3 h-3" /> {new Date(order.createdAt).toLocaleDateString()} • {order.items?.length || 0} items</div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-lg font-serif text-brand-text">₹{order.total}</div>
+                        <ChevronRight className={`w-5 h-5 text-brand-text/40 transition-transform ${expandedOrderId === order.id ? 'rotate-90' : ''}`} />
+                      </div>
+                    </div>
+                    
+                    <AnimatePresence>
+                      {expandedOrderId === order.id && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                          className="border-t border-brand-text/5 bg-brand-surface/10 overflow-hidden"
+                        >
+                          <div className="p-6 flex flex-col gap-6">
+                            {/* Status Timeline */}
+                            <div className="px-2 py-8 mb-2 overflow-x-auto hide-scrollbar">
+                              <div className="flex justify-between relative min-w-[300px]">
+                                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-brand-text/10 -translate-y-1/2"></div>
+                                <div 
+                                  className="absolute top-1/2 left-0 h-0.5 bg-brand-red transition-all duration-500 -translate-y-1/2" 
+                                  style={{ width: `${(Math.max(0, timelineSteps.indexOf(order.status)) / (timelineSteps.length - 1)) * 100}%` }}
+                                ></div>
+                                
+                                {timelineSteps.map((step, idx) => {
+                                  const stepIndex = timelineSteps.indexOf(order.status);
+                                  const isCompleted = stepIndex >= idx;
+                                  const isCurrent = stepIndex === idx;
+                                  
+                                  return (
+                                    <div key={step} className="relative z-10 flex flex-col items-center gap-2">
+                                      <div className={`w-4 h-4 rounded-full border-2 ${isCompleted ? 'bg-brand-red border-brand-red shadow-[0_0_10px_rgba(255,51,51,0.4)]' : 'bg-brand-surface border-brand-text/20'} transition-all duration-500`} />
+                                      <span className={`text-[9px] uppercase tracking-widest font-bold absolute top-6 whitespace-nowrap transition-colors duration-500 ${isCurrent ? 'text-brand-red' : isCompleted ? 'text-brand-text' : 'text-brand-text/40'}`}>{step}</span>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                              <div className="flex flex-col gap-3">
+                                <h4 className="text-xs tracking-widest uppercase font-medium text-brand-text/50">Items</h4>
+                                {order.items?.map((item, i: number) => (
+                                  <div key={i} className="flex justify-between items-center text-sm">
+                                    <span className="text-brand-text/80"><span className="font-bold text-brand-text mr-2">{item.quantity}x</span> {item.product?.name || item.name}</span>
+                                    <span className="font-serif">₹{(item.product?.price || item.price) * item.quantity}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="flex flex-col gap-3 md:pl-8 md:border-l border-brand-text/5">
+                                <h4 className="text-xs tracking-widest uppercase font-medium text-brand-text/50">Summary</h4>
+                                
+                                <div className="flex flex-col gap-1 text-sm mb-2 text-brand-text/80">
+                                  <span className="font-medium text-brand-text">Delivery To:</span>
+                                  <span className="leading-relaxed text-xs">{order.address || "Address not available"}</span>
+                                  <span className="mt-1 text-xs">Phone: {order.phone}</span>
+                                </div>
+
+                                <div className="flex justify-between text-sm pt-2 border-t border-brand-text/5">
+                                  <span className="text-brand-text/80">Payment Method</span>
+                                  <span className="font-medium uppercase">{order.paymentMethod || 'UPI'}</span>
+                                </div>
+
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-brand-text/80">Subtotal</span>
+                                  <span className="font-serif">₹{order.subtotal || order.total}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-brand-text/80">Shipping</span>
+                                  <span className="font-serif">{order.shipping === 0 ? 'Free' : `₹${order.shipping || 0}`}</span>
+                                </div>
+                                <div className="flex justify-between text-sm font-medium pt-2 border-t border-brand-text/5 mt-1">
+                                  <span className="text-brand-text">Total</span>
+                                  <span className="font-serif text-brand-text">₹{order.total}</span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex flex-wrap gap-4 pt-6 border-t border-brand-text/5">
+                              <button 
+                                onClick={() => handlePrintInvoice(order)}
+                                className="px-6 py-2.5 bg-brand-surface border border-brand-text/10 hover:border-brand-text/30 text-brand-text text-xs font-bold tracking-widest uppercase rounded-full transition-colors flex items-center gap-2"
+                              >
+                                <Receipt className="w-4 h-4" /> Invoice
+                              </button>
+                              <button 
+                                onClick={() => handleReorder(order)}
+                                className="px-6 py-2.5 bg-brand-text text-brand-bg hover:bg-brand-text/80 text-xs font-bold tracking-widest uppercase rounded-full transition-colors flex items-center gap-2"
+                              >
+                                <RotateCcw className="w-4 h-4" /> Reorder
+                              </button>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
         </div>
 
         {/* Bottom Right Logout Button */}

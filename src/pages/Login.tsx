@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "../components/AuthContext";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, Navigate } from "react-router-dom";
 import { Mail, Lock, User as UserIcon, ArrowRight, AlertCircle, Loader2, X } from "lucide-react";
 
 export function Login() {
@@ -29,7 +29,7 @@ export function Login() {
       }
       navigate("/"); 
     } catch (err: any) {
-      setError(err.message.includes("auth/") ? "Invalid credentials or user exists." : err.message);
+      setError(err?.message?.includes("auth/") ? "Invalid credentials or user exists." : (err?.message || "An error occurred"));
     } finally {
       setIsLoading(false);
     }

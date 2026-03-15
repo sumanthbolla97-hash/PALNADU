@@ -3,15 +3,18 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { getDatabase, ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
 
+// It is strongly recommended to use environment variables for Firebase configuration
+// Create a .env.local file in the root of your project and add your Firebase keys like so:
+// VITE_FIREBASE_API_KEY="your-api-key"
 const firebaseConfig = {
-  apiKey: "AIzaSyDQOXEDOZihk6KP6SMAf4HP8UtIigcWbbs",
-  authDomain: "palnadudb.firebaseapp.com",
-  databaseURL: "https://palnadudb-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "palnadudb",
-  storageBucket: "palnadudb.firebasestorage.app",
-  messagingSenderId: "182787729039",
-  appId: "1:182787729039:web:62b9054b6dbe1d755e72fa",
-  measurementId: "G-81ZKJ5E251"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDQOXEDOZihk6KP6SMAf4HP8UtIigcWbbs",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "palnadudb.firebaseapp.com",
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL || "https://palnadudb-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "palnadudb",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "palnadudb.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "182787729039",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:182787729039:web:62b9054b6dbe1d755e72fa",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-81ZKJ5E251"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -39,10 +42,34 @@ export interface Address {
   isDefault: boolean;
 }
 
+export interface OrderItem {
+  id?: string;
+  name?: string;
+  quantity: number;
+  price?: number;
+  product?: any;
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  items: OrderItem[];
+  total: number;
+  subtotal?: number;
+  shipping?: number;
+  address: string;
+  phone: string;
+  customerName: string;
+  status: string;
+  createdAt: number;
+  date?: string;
+  paymentMethod?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   profileData: any;
-  userOrders: any[];
+  userOrders: Order[];
   userAddresses: Address[];
   loginWithEmail: (email: string, pass: string) => Promise<void>;
   signupWithEmail: (email: string, pass: string, name: string) => Promise<void>;
@@ -64,10 +91,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return null;
     }
   });
-  const [userOrders, setUserOrders] = useState<any[]>(() => {
+  const [userOrders, setUserOrders] = useState<Order[]>(() => {
     try {
       const cached = localStorage.getItem('palnadu_orders');
-      return cached && cached !== "undefined" ? JSON.parse(cached) : [];
+      const parsed = cached && cached !== "undefined" ? JSON.parse(cached) : [];
+      return Array.isArray(parsed) ? parsed : [];
     } catch (e) {
       return [];
     }
@@ -75,7 +103,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userAddresses, setUserAddresses] = useState<Address[]>(() => {
     try {
       const cached = localStorage.getItem('palnadu_addresses');
-      return cached && cached !== "undefined" ? JSON.parse(cached) : [];
+      const parsed = cached && cached !== "undefined" ? JSON.parse(cached) : [];
+      return Array.isArray(parsed) ? parsed : [];
     } catch (e) {
       return [];
     }
@@ -108,14 +137,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const q = query(ref(db, "orders"), orderByChild("userId"), equalTo(firebaseUser.uid));
         unsubOrders = onValue(q, (snap) => {
           const data = snap.val() || {};
-          const orders = Object.entries(data).map(([key, val]: [string, any]) => ({ id: key, ...val }));
+          const orders: Order[] = Object.entries(data).map(([key, val]: [string, any]) => ({ id: key, ...val }));
           
           // Client-side sort to ensure newest orders are at the top
-          orders.sort((a: any, b: any) => {
-            const timeA = typeof a.createdAt === 'number' ? a.createdAt : (a.createdAt ? Date.now() : 0);
-            const timeB = typeof b.createdAt === 'number' ? b.createdAt : (b.createdAt ? Date.now() : 0);
-            return timeB - timeA;
-          });
+          orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
           
           setUserOrders(orders);
           localStorage.setItem('palnadu_orders', JSON.stringify(orders));
@@ -150,11 +175,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
+    // Safety fallback: If Firebase is blocked by an ad-blocker, force load the app after 3 seconds
+    const safetyTimeout = setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+
     return () => {
       unsubscribe();
       if (unsubProfile) unsubProfile();
       if (unsubOrders) unsubOrders();
       if (unsubAddresses) unsubAddresses();
+      clearTimeout(safetyTimeout);
     };
   }, []);
 
@@ -171,7 +202,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginWithGoogle = async () => {
     // Prevent silent failure if Firebase is not actually configured
-    if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+    if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY") {
       throw new Error("FIREBASE_NOT_CONFIGURED");
     }
     try {
@@ -194,7 +225,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={{ user, profileData, userOrders, userAddresses, loginWithEmail, signupWithEmail, loginWithGoogle, logout, isAdmin, loading }}>
-      {!loading && children}
+      {loading ? (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-brand-bg text-brand-text">
+          <div className="text-center animate-pulse">
+            <h2 className="text-4xl font-serif mb-2">Palnadu</h2>
+            <p className="text-xs tracking-[0.2em] uppercase text-brand-text/50">Loading Experience...</p>
+          </div>
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 }

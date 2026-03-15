@@ -27,10 +27,25 @@ const CartContext = createContext<CartContextType | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   
+  // Helper to prevent app crashes from corrupted local storage data
+  const sanitizeItems = (data: any): CartItem[] => {
+    if (!Array.isArray(data)) return [];
+    return data.reduce((acc: CartItem[], item: any) => {
+      if (item && item.product && item.product.id && typeof item.product.price === 'number') {
+        acc.push({
+          ...item,
+          quantity: typeof item.quantity === 'number' ? Math.max(1, item.quantity) : 1
+        });
+      }
+      return acc;
+    }, []);
+  };
+
   const [items, setItems] = useState<CartItem[]>(() => {
     try {
       const savedCart = localStorage.getItem('palnadu_cart');
-      return savedCart && savedCart !== "undefined" ? JSON.parse(savedCart) : [];
+      const parsed = savedCart && savedCart !== "undefined" ? JSON.parse(savedCart) : [];
+      return sanitizeItems(parsed);
     } catch (e) {
       return [];
     }
@@ -44,7 +59,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
           const snap = await get(ref(db, `carts/${user.uid}`));
           if (snap.exists() && items.length === 0) {
             const cloudItems = snap.val().items || [];
-            if (cloudItems.length > 0) setItems(cloudItems);
+            const sanitized = sanitizeItems(cloudItems);
+            if (sanitized.length > 0) setItems(sanitized);
           }
         } catch (e) {
           console.error("Failed to fetch cloud cart", e);

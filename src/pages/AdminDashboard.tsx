@@ -306,7 +306,7 @@ export function AdminDashboard() {
                             <td className="py-6 px-6 text-center" onClick={(e) => e.stopPropagation()}>
                               <input type="checkbox" checked={selectedOrders.includes(order.id)} onChange={() => toggleOrderSelection(order.id)} className="w-4 h-4 accent-brand-red cursor-pointer" />
                             </td>
-                            <td className="py-6 px-8 text-brand-text text-sm font-medium">{order.id?.slice(-6).toUpperCase()}</td>
+                            <td className="py-6 px-8 text-brand-text text-sm font-medium">{order.id?.slice(-6)?.toUpperCase() || 'N/A'}</td>
                             <td className="py-6 px-8 text-brand-text/80 text-sm">{order.customerName}</td>
                             <td className="py-6 px-8 text-brand-text/60 text-sm flex items-center gap-2"><Clock className="w-3 h-3" /> {order.date}</td>
                             <td className="py-6 px-8 text-brand-text text-sm">₹{order.total}</td>
@@ -400,11 +400,7 @@ export function AdminDashboard() {
                     <tbody>
                       {displayProducts.map(product => (
                         <tr key={product.id} className="border-b border-brand-text/5 hover:bg-brand-surface/40 transition-colors">
-                          <td className="py-6 px-8 text-brand-text text-sm font-medium">
-                            <Link to={`/product/${product.id}`} className="hover:text-brand-red transition-colors">
-                              {product.name}
-                            </Link>
-                          </td>
+                          <td className="py-6 px-8 text-brand-text text-sm font-medium">{product.name}</td>
                           <td className="py-6 px-8 text-brand-text/80 text-sm">₹{product.price}</td>
                           <td className="py-6 px-8 text-brand-text/80 text-sm">{product.stock} units</td>
                           <td className="py-6 px-8 text-brand-text/80 text-sm">{product.sales}</td>

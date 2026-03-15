@@ -1,8 +1,8 @@
-import toast from 'react-hot-toast';
+import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Link } from "react-router-dom";
 import { products, Product } from "../data/products";
-import { X, Plus, Minus, ShoppingBag, CheckCircle } from "lucide-react";
+import { X, Plus, Minus, ShoppingBag } from "lucide-react";
 import { useCart } from "./CartContext";
 
 export function SignatureCollection() {
@@ -19,22 +19,6 @@ export function SignatureCollection() {
   const closeQuickView = () => {
     setSelectedProduct(null);
     document.body.style.overflow = 'unset';
-  };
-
-  const handleAddToCart = (product: Product) => {
-    addToCart(product, 1);
-    toast.custom((t) => (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 20 }}
-        transition={{ duration: 0.3 }}
-        className="bg-[#1c1c1c] text-[#f0f0f0] border border-[#333] rounded-full shadow-lg px-5 py-3 flex items-center gap-3"
-      >
-        <CheckCircle className="w-5 h-5 text-green-500" />
-        <span className="text-sm font-medium">{product.name} added to cart</span>
-      </motion.div>
-    ));
   };
 
   return (
@@ -61,8 +45,18 @@ export function SignatureCollection() {
             const cartItem = items.find(item => item.product.id === product.id);
             
             return (
-              <Link to={`/product/${product.id}`} className="group flex flex-col bg-brand-surface/30 p-3 md:p-6 rounded-[2rem] hover:bg-brand-surface transition-colors duration-500 border border-brand-text/5">
-                <div className="relative aspect-square overflow-hidden mb-4 md:mb-6 bg-brand-surface rounded-3xl">
+              <motion.div 
+                key={product.id}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true, margin: "-10%" }}
+                transition={{ duration: 0.8, delay: (index % 3) * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                className="group flex flex-col bg-brand-surface/30 p-3 md:p-6 rounded-[2rem] hover:bg-brand-surface transition-colors duration-500 border border-brand-text/5"
+              >
+                <div 
+                  onClick={() => openQuickView(product)}
+                  className="relative aspect-square overflow-hidden mb-4 md:mb-6 bg-brand-surface rounded-3xl cursor-pointer"
+                >
                   <div className="absolute inset-0 bg-brand-bg/10 group-hover:bg-transparent transition-colors duration-700 z-10" />
                   <img 
                     src={product.image} 
@@ -70,13 +64,12 @@ export function SignatureCollection() {
                     className="w-full h-full object-cover transform scale-105 group-hover:scale-100 transition-transform duration-1000 ease-[0.16,1,0.3,1]"
                     referrerPolicy="no-referrer"
                   />
-                  <button 
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); openQuickView(product); }}
-                    className="absolute top-3 right-3 p-2 bg-brand-bg/50 backdrop-blur-sm rounded-full text-brand-text hover:bg-brand-red hover:text-brand-bg transition-all duration-300 opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100"
-                    aria-label="Quick View"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
+                  {/* Hover Reveal Button */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20">
+                    <div className="px-4 py-2 md:px-6 md:py-3 bg-brand-text/80 md:bg-brand-text text-brand-bg text-[10px] md:text-xs font-medium tracking-widest uppercase rounded-full transform md:translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out shadow-lg">
+                      View Details
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="flex flex-col flex-grow">
@@ -95,21 +88,21 @@ export function SignatureCollection() {
                     </p>
                     {cartItem ? (
                       <div className="flex items-center border border-brand-text/20 rounded-full p-1 bg-brand-bg shadow-sm">
-                        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (cartItem.quantity === 1) removeFromCart(product.id); else updateQuantity(product.id, cartItem.quantity - 1); }} className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded-full hover:bg-brand-surface transition-colors text-brand-text"><Minus className="w-3 h-3 md:w-4 md:h-4" /></button>
+                        <button onClick={(e) => { e.stopPropagation(); if (cartItem.quantity === 1) removeFromCart(product.id); else updateQuantity(product.id, cartItem.quantity - 1); }} className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded-full hover:bg-brand-surface transition-colors text-brand-text"><Minus className="w-3 h-3 md:w-4 md:h-4" /></button>
                         <span className="w-6 md:w-8 text-center text-xs font-medium text-brand-text">{cartItem.quantity}</span>
-                        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateQuantity(product.id, cartItem.quantity + 1); }} className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded-full hover:bg-brand-surface transition-colors text-brand-text"><Plus className="w-3 h-3 md:w-4 md:h-4" /></button>
+                        <button onClick={(e) => { e.stopPropagation(); updateQuantity(product.id, cartItem.quantity + 1); }} className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded-full hover:bg-brand-surface transition-colors text-brand-text"><Plus className="w-3 h-3 md:w-4 md:h-4" /></button>
                       </div>
                     ) : (
                       <button 
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleAddToCart(product); }}
-                        className="px-4 py-2 bg-brand-red text-brand-bg text-[10px] md:text-xs font-bold tracking-widest uppercase rounded-full hover:bg-brand-red-light transition-colors flex items-center gap-2"
+                        onClick={(e) => { e.stopPropagation(); addToCart(product, 1); }}
+                        className="text-[10px] md:text-xs tracking-[0.2em] uppercase text-brand-red font-medium opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1"
                       >
-                        <ShoppingBag className="w-3 h-3" /> Add to Cart
+                        Add to Cart <ShoppingBag className="w-3 h-3 ml-1" />
                       </button>
                     )}
                   </div>
                 </div>
-              </Link>
+              </motion.div>
             );
           })}
         </div>
@@ -155,12 +148,12 @@ export function SignatureCollection() {
                   {selectedProduct.shortDescription}
                 </p>
 
-                <div className="mb-10">
-                  <h4 className="text-brand-text font-medium tracking-[0.2em] uppercase text-xs mb-3">Health Benefits</h4>
-                  <p className="text-brand-text/60 text-sm font-light leading-relaxed">
-                    {selectedProduct.healthBenefits}
-                  </p>
-                </div>
+                {selectedProduct.recipe && (
+                  <div className="mb-10 p-5 bg-brand-surface/50 rounded-2xl border border-brand-text/5">
+                    <h4 className="text-brand-gold text-xs tracking-[0.2em] uppercase font-medium mb-3">How to Enjoy</h4>
+                    <p className="text-brand-text/80 text-sm font-light leading-relaxed">{selectedProduct.recipe}</p>
+                  </div>
+                )}
                 
                 <div className="mt-auto pt-8 border-t border-brand-text/10">
                   <div className="flex items-center gap-4 mb-6">

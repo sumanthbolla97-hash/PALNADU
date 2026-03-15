@@ -11,10 +11,9 @@ import { FinalCTA } from "../components/FinalCTA";
 export function Home() {
   return (
     <motion.main
-      initial={{ opacity: 0, scale: 0.98, filter: "blur(8px)" }}
-      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-      exit={{ opacity: 0, scale: 0.98, filter: "blur(8px)" }}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
       className="bg-brand-black min-h-screen"
     >
       <Hero />

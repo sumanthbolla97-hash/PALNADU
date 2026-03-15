@@ -1,15 +1,18 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "motion/react";
-import { ArrowLeft, Check, Flame, Leaf, Package, Heart } from "lucide-react";
+import { ArrowLeft, Check, Flame, Plus, Minus, ShoppingBag, Leaf, Utensils, Info } from "lucide-react";
 import { products } from "../data/products";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "../components/CartContext";
 import { CollapsibleSection } from "../components/CollapsibleSection";
 
 export function Product() {
   const { id } = useParams();
   const product = products.find(p => p.id === id);
-  const { addToCart } = useCart();
+  const { items, addToCart, updateQuantity, removeFromCart } = useCart();
+  const [quantity, setQuantity] = useState(1);
+
+  const cartItem = product ? items.find(item => item.product.id === product.id) : undefined;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -99,42 +102,86 @@ export function Product() {
                 {product.shortDescription}
               </p>
               
-              <div className="flex flex-col sm:flex-row items-center gap-6 w-full mb-20">
-                <motion.button 
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => addToCart(product, 1)}
-                  className="group relative px-10 py-5 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm overflow-hidden w-full sm:flex-1 text-center shadow-lg shadow-brand-red/20 hover:-translate-y-0.5 transition-transform"
-                >
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                    Add to Cart
-                  </span>
-                  <div className="absolute inset-0 bg-brand-red-light scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-out" />
-                </motion.button>
+              <div className="flex flex-col sm:flex-row items-stretch gap-6 w-full mb-20">
+                {cartItem ? (
+                  <div className="flex items-center justify-between border border-brand-text/20 bg-brand-surface/10 w-full sm:flex-1">
+                    <button 
+                      onClick={() => {
+                        if (cartItem.quantity === 1) removeFromCart(product.id);
+                        else updateQuantity(product.id, cartItem.quantity - 1);
+                      }}
+                      className="w-16 h-full min-h-[64px] flex items-center justify-center hover:bg-brand-surface/50 transition-colors text-brand-text border-r border-brand-text/10"
+                    >
+                      <Minus className="w-5 h-5" />
+                    </button>
+                    <div className="flex flex-col items-center">
+                      <span className="text-xl font-medium text-brand-text leading-none">{cartItem.quantity}</span>
+                      <span className="text-[10px] text-brand-text/50 uppercase tracking-widest mt-1">in cart</span>
+                    </div>
+                    <button 
+                      onClick={() => updateQuantity(product.id, cartItem.quantity + 1)}
+                      className="w-16 h-full min-h-[64px] flex items-center justify-center hover:bg-brand-surface/50 transition-colors text-brand-text border-l border-brand-text/10"
+                    >
+                      <Plus className="w-5 h-5" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-stretch gap-4 w-full sm:flex-1">
+                    <div className="flex items-center border border-brand-text/20 bg-brand-surface/10 shrink-0">
+                      <button 
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        className="w-12 h-full min-h-[64px] flex items-center justify-center hover:bg-brand-surface/50 transition-colors text-brand-text border-r border-brand-text/10"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="w-12 text-center font-medium text-brand-text">{quantity}</span>
+                      <button 
+                        onClick={() => setQuantity(quantity + 1)}
+                        className="w-12 h-full min-h-[64px] flex items-center justify-center hover:bg-brand-surface/50 transition-colors text-brand-text border-l border-brand-text/10"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+                    
+                    <motion.button 
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => addToCart(product, quantity)}
+                      className="group relative flex-1 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm overflow-hidden text-center shadow-lg shadow-brand-red/20 hover:-translate-y-0.5 transition-transform flex items-center justify-center min-h-[64px]"
+                    >
+                      <span className="relative z-10 flex items-center justify-center gap-2 whitespace-nowrap">
+                        Add to Cart <ShoppingBag className="w-4 h-4 ml-1" />
+                      </span>
+                      <div className="absolute inset-0 bg-brand-red-light scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-out" />
+                    </motion.button>
+                  </div>
+                )}
                 
-                <button className="px-10 py-5 text-brand-text border border-brand-text/20 hover:border-brand-gold hover:text-brand-gold transition-colors tracking-widest uppercase text-sm w-full sm:flex-1 text-center font-medium">
+                <button className="px-10 text-brand-text border border-brand-text/20 hover:border-brand-gold hover:text-brand-gold transition-colors tracking-widest uppercase text-sm w-full sm:flex-1 min-h-[64px] text-center font-medium">
                   Buy Now
                 </button>
               </div>
 
               {/* Accordion / Details Section */}
-              <div className="w-full flex flex-col gap-4">
+              <div className="w-full flex flex-col gap-4 mt-8">
                 <CollapsibleSection title="Ingredients" icon={<Leaf className="w-5 h-5" />} defaultOpen={true}>
-                  <p className="text-brand-text/60 text-base font-light leading-relaxed">
+                  <p className="text-brand-text/70 text-base font-light leading-relaxed">
                     {product.ingredients}
                   </p>
                 </CollapsibleSection>
-                <CollapsibleSection title="Health Benefits" icon={<Heart className="w-5 h-5" />} defaultOpen={true}>
-                  <p className="text-brand-text/60 text-base font-light leading-relaxed">
-                    {product.healthBenefits}
+                
+                <CollapsibleSection title="How to Enjoy" icon={<Utensils className="w-5 h-5" />}>
+                  <p className="text-brand-text/70 text-base font-light leading-relaxed">
+                    {product.recipe || "Mix with hot rice and a generous dollop of ghee. Also pairs wonderfully with idli, dosa, or upma."}
                   </p>
                 </CollapsibleSection>
-                <CollapsibleSection title="Shelf Life & Storage" icon={<Package className="w-5 h-5" />}>
-                  <div className="flex flex-col gap-4">
-                    <p className="text-brand-text/60 text-base font-light">
-                      <strong className="text-brand-text/80 font-medium">Shelf Life:</strong> {product.shelfLife}
+
+                <CollapsibleSection title="Shelf Life & Storage" icon={<Info className="w-5 h-5" />}>
+                  <div className="flex flex-col gap-3">
+                    <p className="text-brand-text/70 text-base font-light leading-relaxed">
+                      <strong className="text-brand-text font-medium">Shelf Life:</strong> {product.shelfLife}
                     </p>
-                    <p className="text-brand-text/60 text-base font-light">
-                      <strong className="text-brand-text/80 font-medium">Storage:</strong> {product.storage}
+                    <p className="text-brand-text/70 text-base font-light leading-relaxed">
+                      <strong className="text-brand-text font-medium">Storage:</strong> {product.storage}
                     </p>
                   </div>
                 </CollapsibleSection>
