@@ -156,7 +156,9 @@ export function Product() {
                   </div>
                 )}
                 
-                <button className="px-10 text-brand-text border border-brand-text/20 hover:border-brand-gold hover:text-brand-gold transition-colors tracking-widest uppercase text-sm w-full sm:flex-1 min-h-[64px] text-center font-medium">
+                <button 
+                  onClicame="px-10 text-brand-text border border-brand-text/20 hover:border-brand-gold hover:text-brand-gold transition-colors tracking-widest uppercase text-sm w-full sm:flex-1 min-h-[64px] text-center font-medium"
+                >
                   Buy Now
                 </button>
               </div>

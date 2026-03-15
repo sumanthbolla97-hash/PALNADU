@@ -111,22 +111,25 @@ export function SignatureCollection() {
       {/* Premium Quick View Drawer */}
       <AnimatePresence>
         {selectedProduct && (
-          <>
-            <motion.div
-              initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-              animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
-              exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              onClick={closeQuickView}
-              className="fixed inset-0 bg-brand-text/20 z-50"
-            />
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
-              className="fixed top-0 right-0 h-full w-full md:w-[30rem] bg-brand-bg shadow-2xl z-50 overflow-y-auto border-l border-brand-text/10"
-            >
+          <motion.div
+            key="quickview-backdrop"
+            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
+            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            onClick={closeQuickView}
+            className="fixed inset-0 bg-brand-text/20 z-50"
+          />
+        )}
+        {selectedProduct && (
+          <motion.div
+            key="quickview-drawer"
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
+            className="fixed top-0 right-0 h-full w-full md:w-[30rem] bg-brand-bg shadow-2xl z-50 overflow-y-auto border-l border-brand-text/10"
+          >
               <div className="p-6 md:p-10 flex flex-col min-h-full">
                 <div className="flex justify-between items-center mb-8">
                   <h3 className="text-xs font-medium tracking-[0.2em] uppercase text-brand-text/60">Quick View</h3>
@@ -199,7 +202,6 @@ export function SignatureCollection() {
                 </div>
               </div>
             </motion.div>
-          </>
         )}
       </AnimatePresence>
     </section>

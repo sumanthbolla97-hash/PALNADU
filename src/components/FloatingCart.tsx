@@ -174,22 +174,25 @@ export function FloatingCart() {
       {/* Cart Drawer */}
       <AnimatePresence>
         {isOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-              animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
-              exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-brand-text/40 backdrop-blur-sm z-[70]"
-            />
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
-              className="fixed top-0 right-0 h-full w-full md:w-[30rem] bg-brand-bg shadow-2xl z-[80] overflow-hidden flex flex-col border-l border-brand-text/10"
-            >
+          <motion.div
+            key="cart-backdrop"
+            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
+            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 bg-brand-text/40 backdrop-blur-sm z-[70]"
+          />
+        )}
+        {isOpen && (
+          <motion.div
+            key="cart-drawer"
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
+            className="fixed top-0 right-0 h-full w-full md:w-[30rem] bg-brand-bg shadow-2xl z-[80] overflow-hidden flex flex-col border-l border-brand-text/10"
+          >
               {/* Header */}
               <div className="p-6 md:p-8 flex justify-between items-center border-b border-brand-text/10 bg-brand-surface/50 shrink-0">
                 <h2 className="text-2xl font-serif text-brand-text flex items-center gap-3">
@@ -343,7 +346,6 @@ export function FloatingCart() {
               )}
               </div>
             </motion.div>
-          </>
         )}
       </AnimatePresence>
     </>
