@@ -191,7 +191,7 @@ export function FloatingCart() {
               className="fixed top-0 right-0 h-full w-full md:w-[30rem] bg-brand-bg shadow-2xl z-[80] overflow-hidden flex flex-col border-l border-brand-text/10"
             >
               {/* Header */}
-              <div className="p-6 md:p-8 flex justify-between items-center border-b border-brand-text/10 bg-brand-surface/50">
+              <div className="p-6 md:p-8 flex justify-between items-center border-b border-brand-text/10 bg-brand-surface/50 shrink-0">
                 <h2 className="text-2xl font-serif text-brand-text flex items-center gap-3">
                   <ShoppingBag className="w-6 h-6 text-brand-red" /> Your Cart
                 </h2>
@@ -200,9 +200,10 @@ export function FloatingCart() {
                 </button>
               </div>
 
-              {/* Cart Items */}
-              <div className="flex-1 overflow-y-auto p-6 md:p-8 hide-scrollbar">
-                <AnimatePresence mode="wait">
+              {/* Scrollable Body */}
+              <div className="flex-1 overflow-y-auto hide-scrollbar flex flex-col">
+                <div className={`p-6 md:p-8 ${orderSuccess || items.length === 0 ? 'flex-1 flex flex-col' : ''}`}>
+                  <AnimatePresence mode="wait">
                 {orderSuccess ? (
                   <motion.div 
                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -246,11 +247,11 @@ export function FloatingCart() {
                   </motion.div>
                 )}
                 </AnimatePresence>
-              </div>
+                </div>
 
-              {/* Footer / Order Summary */}
-              {!orderSuccess && items.length > 0 && (
-                <div className="p-6 md:p-8 bg-brand-surface/50 border-t border-brand-text/10">
+                {/* Footer / Order Summary */}
+                {!orderSuccess && items.length > 0 && (
+                  <div className="p-6 md:p-8 bg-brand-surface/50 border-t border-brand-text/10 mt-auto shrink-0">
                   <div className="flex flex-col gap-3 mb-6 text-sm font-light text-brand-text/80">
                     <div className="flex justify-between"><span>Subtotal</span><span>₹{subtotal}</span></div>
                     <div className="flex justify-between"><span>Tax (5% GST)</span><span>₹{tax}</span></div>
@@ -341,6 +342,7 @@ export function FloatingCart() {
                   )}
                 </div>
               )}
+              </div>
             </motion.div>
           </>
         )}
