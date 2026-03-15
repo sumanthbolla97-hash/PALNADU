@@ -342,7 +342,7 @@ export function Profile() {
                                 <h4 className="text-xs tracking-widest uppercase font-medium text-brand-text/50">Items</h4>
                                 {order.items?.map((item: any, i: number) => (
                                   <div key={i} className="flex justify-between items-center text-sm">
-                                    <span className="text-brand-text/80"><span className="font-bold text-brand-text mr-2">{item.quantity}x</span> {item.product?.name || item.name}</span>
+                                    <span className="text-brand-text/80"><span className="font-bold text-brand-text mr-2">{item.quantity}x</span> <Link to={`/product/${item.product.id}`} className="hover:text-brand-red transition-colors">{item.product?.name || item.name}</Link></span>
                                     <span className="font-serif">₹{(item.product?.price || item.price) * item.quantity}</span>
                                   </div>
                                 ))}
