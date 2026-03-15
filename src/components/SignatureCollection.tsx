@@ -160,9 +160,16 @@ export function SignatureCollection() {
                 
                 <div className="text-2xl font-serif text-brand-text mb-8">₹{selectedProduct.price}</div>
                 
-                <p className="text-brand-text/70 font-light leading-relaxed mb-10">
+                <p className="text-brand-text/70 font-light leading-relaxed mb-6">
                   {selectedProduct.shortDescription}
                 </p>
+
+                <div className="mb-10">
+                  <h4 className="text-brand-text font-medium tracking-[0.2em] uppercase text-xs mb-3">Health Benefits</h4>
+                  <p className="text-brand-text/60 text-sm font-light leading-relaxed">
+                    {selectedProduct.healthBenefits}
+                  </p>
+                </div>
                 
                 <div className="mt-auto pt-8 border-t border-brand-text/10">
                   <div className="flex items-center gap-4 mb-6">

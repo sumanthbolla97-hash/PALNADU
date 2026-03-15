@@ -1,9 +1,10 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "motion/react";
-import { ArrowLeft, Check, Flame } from "lucide-react";
+import { ArrowLeft, Check, Flame, Leaf, Package, Heart } from "lucide-react";
 import { products } from "../data/products";
 import { useEffect } from "react";
 import { useCart } from "../components/CartContext";
+import { CollapsibleSection } from "../components/CollapsibleSection";
 
 export function Product() {
   const { id } = useParams();
@@ -116,23 +117,19 @@ export function Product() {
               </div>
 
               {/* Accordion / Details Section */}
-              <div className="w-full border-t border-brand-text/10">
-                <div className="py-8 border-b border-brand-text/10">
-                  <h4 className="text-brand-text font-medium tracking-[0.2em] uppercase text-xs mb-4 flex items-center gap-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-brand-gold"></span>
-                    Ingredients
-                  </h4>
-                  <p className="text-brand-text/60 text-base font-light leading-relaxed pl-4 border-l border-brand-text/10">
+              <div className="w-full flex flex-col gap-4">
+                <CollapsibleSection title="Ingredients" icon={<Leaf className="w-5 h-5" />} defaultOpen={true}>
+                  <p className="text-brand-text/60 text-base font-light leading-relaxed">
                     {product.ingredients}
                   </p>
-                </div>
-                
-                <div className="py-8 border-b border-brand-text/10">
-                  <h4 className="text-brand-text font-medium tracking-[0.2em] uppercase text-xs mb-4 flex items-center gap-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-brand-gold"></span>
-                    Shelf Life & Storage
-                  </h4>
-                  <div className="pl-4 border-l border-brand-text/10 flex flex-col gap-4">
+                </CollapsibleSection>
+                <CollapsibleSection title="Health Benefits" icon={<Heart className="w-5 h-5" />} defaultOpen={true}>
+                  <p className="text-brand-text/60 text-base font-light leading-relaxed">
+                    {product.healthBenefits}
+                  </p>
+                </CollapsibleSection>
+                <CollapsibleSection title="Shelf Life & Storage" icon={<Package className="w-5 h-5" />}>
+                  <div className="flex flex-col gap-4">
                     <p className="text-brand-text/60 text-base font-light">
                       <strong className="text-brand-text/80 font-medium">Shelf Life:</strong> {product.shelfLife}
                     </p>
@@ -140,7 +137,7 @@ export function Product() {
                       <strong className="text-brand-text/80 font-medium">Storage:</strong> {product.storage}
                     </p>
                   </div>
-                </div>
+                </CollapsibleSection>
               </div>
               
               <div className="mt-16 flex flex-wrap items-center gap-x-8 gap-y-4 w-full text-brand-gold/60 text-xs tracking-[0.2em] uppercase font-medium">

@@ -8,6 +8,7 @@ export interface Product {
   ingredients: string;
   shelfLife: string;
   storage: string;
+  healthBenefits: string;
 }
 
 export const products: Product[] = [
@@ -20,7 +21,8 @@ export const products: Product[] = [
     image: "/traditional-spices.png",
     ingredients: "Red chilli, roasted dal, garlic, cumin, salt, traditional spices",
     shelfLife: "3 months",
-    storage: "Store in an airtight container in a cool, dry place."
+    storage: "Store in an airtight container in a cool, dry place.",
+    healthBenefits: "Rich in antioxidants, aids digestion, and may boost metabolism. Garlic and cumin are known for their immune-boosting properties."
   },
   {
     id: "kandi-podi",
@@ -31,7 +33,8 @@ export const products: Product[] = [
     image: "/traditional-spices.png",
     ingredients: "Toor dal, chana dal, red chilli, cumin, salt",
     shelfLife: "3 months",
-    storage: "Store in an airtight container in a cool, dry place."
+    storage: "Store in an airtight container in a cool, dry place.",
+    healthBenefits: "Excellent source of plant-based protein and dietary fiber, which supports muscle repair and digestive health. Low glycemic index helps in blood sugar control."
   },
   {
     id: "karivepaku-podi",
@@ -42,7 +45,8 @@ export const products: Product[] = [
     image: "/traditional-spices.png",
     ingredients: "Fresh curry leaves, urad dal, chana dal, tamarind, red chilli",
     shelfLife: "3 months",
-    storage: "Store in an airtight container in a cool, dry place."
+    storage: "Store in an airtight container in a cool, dry place.",
+    healthBenefits: "Curry leaves are packed with antioxidants and may help control blood sugar levels and support hair health. Lentils provide protein and fiber."
   },
   {
     id: "palli-karam",
@@ -53,7 +57,8 @@ export const products: Product[] = [
     image: "/traditional-spices.png",
     ingredients: "Roasted peanuts, garlic, red chilli, cumin, salt",
     shelfLife: "3 months",
-    storage: "Store in an airtight container in a cool, dry place."
+    storage: "Store in an airtight container in a cool, dry place.",
+    healthBenefits: "Peanuts are a good source of protein and healthy fats. Garlic and cumin contribute to heart health and have immune-boosting properties."
   },
   {
     id: "nuvvula-podi",
@@ -64,7 +69,8 @@ export const products: Product[] = [
     image: "/traditional-spices.png",
     ingredients: "White sesame seeds, dry red chilli, garlic, salt",
     shelfLife: "3 months",
-    storage: "Store in an airtight container in a cool, dry place."
+    storage: "Store in an airtight container in a cool, dry place.",
+    healthBenefits: "Sesame seeds are rich in healthy fats, protein, and B vitamins. They may help lower cholesterol and blood pressure."
   },
   {
     id: "garlic-karam",
@@ -75,7 +81,8 @@ export const products: Product[] = [
     image: "/traditional-spices.png",
     ingredients: "Garlic, red chilli powder, coriander seeds, salt",
     shelfLife: "3 months",
-    storage: "Store in an airtight container in a cool, dry place."
+    storage: "Store in an airtight container in a cool, dry place.",
+    healthBenefits: "Garlic is known for its cardiovascular and immune-boosting benefits. Coriander seeds aid digestion and are rich in antioxidants."
   },
   {
     id: "coconut-karam",
@@ -86,7 +93,8 @@ export const products: Product[] = [
     image: "/traditional-spices.png",
     ingredients: "Dry coconut, red chilli, garlic, cumin, salt",
     shelfLife: "3 months",
-    storage: "Store in an airtight container in a cool, dry place."
+    storage: "Store in an airtight container in a cool, dry place.",
+    healthBenefits: "Coconut provides healthy fats and fiber. Garlic and cumin contribute to heart health and have anti-inflammatory properties."
   },
   {
     id: "flaxseed-podi",
@@ -97,7 +105,8 @@ export const products: Product[] = [
     image: "/traditional-spices.png",
     ingredients: "Roasted flaxseeds, urad dal, red chilli, garlic, salt",
     shelfLife: "3 months",
-    storage: "Store in an airtight container in a cool, dry place."
+    storage: "Store in an airtight container in a cool, dry place.",
+    healthBenefits: "Flaxseeds are an excellent source of Omega-3 fatty acids, which are crucial for heart health. They are also high in fiber and may help reduce cancer risk."
   },
   {
     id: "curry-leaf-special",
@@ -108,7 +117,8 @@ export const products: Product[] = [
     image: "/traditional-spices.png",
     ingredients: "Premium curry leaves, roasted lentils, traditional spices",
     shelfLife: "3 months",
-    storage: "Store in an airtight container in a cool, dry place."
+    storage: "Store in an airtight container in a cool, dry place.",
+    healthBenefits: "Curry leaves are rich in antioxidants and are known to have anti-diabetic properties. Lentils add a good measure of protein and fiber."
   },
   {
     id: "premium-mixed-karam",
@@ -119,6 +129,7 @@ export const products: Product[] = [
     image: "/traditional-spices.png",
     ingredients: "Secret blend of 12 traditional spices, lentils, and herbs",
     shelfLife: "3 months",
-    storage: "Store in an airtight container in a cool, dry place."
+    storage: "Store in an airtight container in a cool, dry place.",
+    healthBenefits: "A complex blend of spices, lentils, and herbs that offers a wide range of health benefits, including improved digestion, boosted immunity, and anti-inflammatory properties."
   }
 ];
