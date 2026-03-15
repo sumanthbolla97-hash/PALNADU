@@ -86,7 +86,7 @@ export function Navbar() {
               animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: -10, scale: 0.98, filter: "blur(4px)" }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute top-full left-0 right-0 mt-4 bg-brand-bg/95 backdrop-blur-2xl border border-brand-text/10 p-6 flex flex-col gap-6 pointer-events-auto shadow-2xl lg:hidden rounded-2xl mx-auto"
+              className="absolute top-full left-0 right-0 mt-4 bg-brand-bg/95 backdrop-blur-2xl border border-brand-text/10 p-6 flex flex-col gap-6 pointer-events-auto shadow-2xl lg:hidden rounded-2xl mx-auto max-h-[75vh] overflow-y-auto hide-scrollbar"
             >
               <a href="/#shop" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-text/80 font-medium">Shop</a>
               <a href="/#story" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-text/80 font-medium">Story</a>

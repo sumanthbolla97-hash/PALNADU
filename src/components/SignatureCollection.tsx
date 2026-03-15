@@ -40,7 +40,7 @@ export function SignatureCollection() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
           {products.map((product, index) => {
             const cartItem = items.find(item => item.product.id === product.id);
             
@@ -82,7 +82,7 @@ export function SignatureCollection() {
                     </span>
                   </div>
                   
-                  <div className="mt-auto pt-4 border-t border-brand-text/10 flex justify-between items-center h-12">
+                  <div className="mt-auto pt-4 border-t border-brand-text/10 flex flex-wrap justify-between items-center gap-y-3 min-h-[3rem]">
                     <p className="text-brand-text/50 text-[10px] md:text-xs font-light tracking-widest uppercase">
                       {product.weight}
                     </p>

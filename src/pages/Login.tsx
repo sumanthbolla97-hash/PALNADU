@@ -69,7 +69,7 @@ export function Login() {
       </div>
 
       {/* Right Panel - Auth Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 sm:px-12 md:px-24 py-20 relative">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 sm:px-12 md:px-24 py-12 sm:py-20 relative">
         <Link to="/" className="absolute top-8 right-6 lg:right-12 p-2 hover:bg-brand-surface rounded-full transition-colors z-50">
           <X className="w-6 h-6 text-brand-text" />
         </Link>

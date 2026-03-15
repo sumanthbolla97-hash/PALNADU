@@ -51,7 +51,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="text-[18vw] leading-[0.85] font-serif text-brand-text tracking-tighter uppercase"
+          className="text-[18vw] 2xl:text-[280px] leading-[0.85] font-serif text-brand-text tracking-tighter uppercase"
         >
           Palnadu
         </motion.h1>

@@ -86,7 +86,7 @@ export function Product() {
                 <span className="text-brand-gold uppercase tracking-[0.2em] text-xs font-medium">Authentic Recipe</span>
               </div>
               
-              <h1 className="text-5xl lg:text-7xl font-serif text-brand-text leading-[1.1] mb-8">
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-serif text-brand-text leading-[1.1] mb-8">
                 {product.name}
               </h1>
               

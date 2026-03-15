@@ -36,7 +36,7 @@ export function Footer() {
         
         {/* Massive Footer Text */}
         <div className="w-full flex justify-center items-center border-t border-brand-text/10 pt-8 lg:pt-12 mb-8 lg:mb-12">
-          <h2 className="text-[18vw] leading-none font-serif text-brand-text/5 tracking-tighter uppercase select-none">
+          <h2 className="text-[18vw] 2xl:text-[280px] leading-none font-serif text-brand-text/5 tracking-tighter uppercase select-none">
             PALNADU
           </h2>
         </div>
