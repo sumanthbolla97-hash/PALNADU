@@ -10,9 +10,9 @@ export function TrustBar() {
   ];
 
   return (
-    <section className="bg-brand-gray border-y border-white/5 py-12">
+    <section className="bg-brand-gray border-y border-white/5 py-8 lg:py-12">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-12">
           {items.map((item, index) => (
             <motion.div 
               key={index}

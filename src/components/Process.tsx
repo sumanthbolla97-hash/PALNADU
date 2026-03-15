@@ -25,13 +25,13 @@ export function Process() {
   ];
 
   return (
-    <section id="process" className="py-32 lg:py-48 bg-brand-bg relative">
+    <section id="process" className="py-20 lg:py-32 bg-brand-bg relative">
       <div className="max-w-[100rem] mx-auto px-6">
-        <div className="flex flex-col lg:flex-row gap-24">
+        <div className="flex flex-col lg:flex-row gap-16 lg:gap-24">
           {/* Sticky Left */}
           <div className="lg:w-1/3">
             <div className="sticky top-32">
-              <h2 className="text-5xl lg:text-7xl font-serif text-brand-text leading-[1.1] mb-8">
+              <h2 className="text-5xl lg:text-7xl font-serif text-brand-text leading-[1.1] mb-6">
                 The Art of <br />
                 <span className="italic text-brand-text/60">Crafting</span>
               </h2>
@@ -42,7 +42,7 @@ export function Process() {
           </div>
 
           {/* Scrolling Right */}
-          <div className="lg:w-2/3 flex flex-col gap-32">
+          <div className="lg:w-2/3 flex flex-col gap-16 lg:gap-24">
             {steps.map((step, index) => (
               <motion.div 
                 key={index}

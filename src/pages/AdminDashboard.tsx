@@ -10,6 +10,7 @@ export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Real-time Database States
   const [orders, setOrders] = useState<any[]>([]);

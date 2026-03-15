@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "../components/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
-import { Mail, Lock, User as UserIcon, ArrowRight, AlertCircle, Loader2 } from "lucide-react";
+import { Mail, Lock, User as UserIcon, ArrowRight, AlertCircle, Loader2, X } from "lucide-react";
 
 export function Login() {
   const { loginWithGoogle, loginWithEmail, signupWithEmail, user } = useAuth();
@@ -64,6 +64,9 @@ export function Login() {
 
       {/* Right Panel - Auth Form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 sm:px-12 md:px-24 py-20 relative">
+        <Link to="/" className="absolute top-8 right-6 lg:right-12 p-2 hover:bg-brand-surface rounded-full transition-colors z-50">
+          <X className="w-6 h-6 text-brand-text" />
+        </Link>
         <Link to="/" className="lg:hidden text-2xl font-serif tracking-wide text-brand-text absolute top-8 left-6">Palnadu</Link>
         
         <div className="w-full max-w-md mx-auto">

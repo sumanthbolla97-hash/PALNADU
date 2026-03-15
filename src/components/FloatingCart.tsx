@@ -1,24 +1,143 @@
 import { motion, AnimatePresence } from "motion/react";
-import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight, CheckCircle, AlertCircle } from "lucide-react";
+import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight, CheckCircle, AlertCircle, MapPin } from "lucide-react";
 import { useCart } from "./CartContext";
 import { useAuth, db, auth } from "./AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { collection, addDoc, serverTimestamp, doc, setDoc } from "firebase/firestore";
 import { Link } from "react-router-dom";
 
 export function FloatingCart() {
   const { items, totalItems, cartTotal, updateQuantity, removeFromCart, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, profileData } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [whatsappUrl, setWhatsappUrl] = useState("");
   const [error, setError] = useState("");
   const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
+  const [autoAddress, setAutoAddress] = useState("");
+  const [manualAddress, setManualAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("upi");
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // New Address States
+  const [lat, setLat] = useState("");
+  const [lng, setLng] = useState("");
+  const [isAddressSaved, setIsAddressSaved] = useState(false);
+  const [isLoadingAddress, setIsLoadingAddress] = useState(false);
+  const [accuracy, setAccuracy] = useState<number | null>(null);
+  const [hasLoadedProfile, setHasLoadedProfile] = useState(false);
 
   const shipping = cartTotal > 500 || cartTotal === 0 ? 0 : 50;
   const finalTotal = cartTotal + shipping;
+
+  // Fetch saved address on drawer open
+  useEffect(() => {
+    if (isOpen && profileData && !hasLoadedProfile) {
+      setPhone(profileData.phone || "");
+      setAutoAddress(profileData.autoAddress || profileData.address || "");
+      setManualAddress(profileData.manualAddress || "");
+      setLat(profileData.lat || "");
+      setLng(profileData.lng || "");
+
+      if (profileData.phone && (profileData.autoAddress || profileData.address || profileData.manualAddress)) {
+        setIsAddressSaved(true);
+      }
+      setHasLoadedProfile(true);
+    }
+  }, [isOpen, profileData, hasLoadedProfile]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setHasLoadedProfile(false);
+    }
+  }, [isOpen]);
+
+  const handleGetLocation = () => {
+    setIsLoadingAddress(true);
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        setLat(latitude.toFixed(6));
+        setLng(longitude.toFixed(6));
+        setAccuracy(Math.round(position.coords.accuracy));
+        
+        try {
+          // Reverse Geocoding API to auto-generate string address from GPS
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+          const data = await res.json();
+          if (data && data.display_name) {
+            setAutoAddress(data.display_name);
+          }
+        } catch (e) {
+          console.log("Geocoding failed, using coordinates instead.");
+        } finally {
+          setIsLoadingAddress(false);
+        }
+      }, (err) => {
+        console.error(err);
+        setError("Location access denied.");
+        setIsLoadingAddress(false);
+      });
+    } else {
+      setError("Geolocation not supported.");
+      setIsLoadingAddress(false);
+    }
+  };
+
+  const handleSaveAddress = async () => {
+    if (!phone || (!autoAddress && !manualAddress)) {
+      setError("Please provide your phone number and delivery address.");
+      return;
+    }
+
+    const isSame = phone === (profileData?.phone || "") &&
+                   manualAddress === (profileData?.manualAddress || "") &&
+                   autoAddress === (profileData?.autoAddress || "");
+
+    if (isSame) {
+      setError("");
+      setIsAddressSaved(true);
+      return;
+    }
+
+    setError("");
+    setIsSaving(true);
+    
+    if (!auth.currentUser) {
+      setIsSaving(false);
+      return;
+    }
+
+    try {
+      const finalAddress = `${manualAddress ? manualAddress + ', ' : ''}${autoAddress}`;
+      const payload = JSON.parse(JSON.stringify({
+        phone: phone || "", 
+        autoAddress: autoAddress || "", 
+        manualAddress: manualAddress || "",
+        address: finalAddress || "",
+        lat: lat || "", 
+        lng: lng || "",
+        name: user?.name || "User",
+        email: user?.email || "",
+      }));
+
+      // Optimistic UI update: Instantly switch to saved view
+      setIsAddressSaved(true);
+
+      await setDoc(doc(db, "users", auth.currentUser.uid), {
+        ...payload,
+        lastUpdated: serverTimestamp()
+      }, { merge: true });
+      
+    } catch (err: any) {
+      setError(err.message || "Failed to save address.");
+      setIsAddressSaved(false); // Re-open on error
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleCheckout = async () => {
     if (!user || !auth.currentUser) {
@@ -26,8 +145,13 @@ export function FloatingCart() {
       return;
     }
     
-    if (!phone || !address) {
+    if (!phone || (!autoAddress && !manualAddress)) {
       setError("Please provide delivery details.");
+      return;
+    }
+    
+    if (!isAddressSaved) {
+      setError("Please save your address before proceeding.");
       return;
     }
 
@@ -35,12 +159,17 @@ export function FloatingCart() {
     setIsCheckingOut(true);
 
     try {
+      const finalAddress = `${manualAddress ? manualAddress + ', ' : ''}${autoAddress}`;
       const orderData = {
         userId: auth.currentUser.uid,
-        customerName: user.name,
-        customerEmail: user.email,
-        phone: phone,
-        address: address,
+        customerName: user.name || "User",
+        customerEmail: user.email || "",
+        phone: phone || "",
+        autoAddress: autoAddress || "",
+        manualAddress: manualAddress || "",
+        address: finalAddress || "",
+        lat: lat || "",
+        lng: lng || "",
         items: items,
         subtotal: cartTotal,
         shipping: shipping,
@@ -58,17 +187,24 @@ export function FloatingCart() {
         name: user.name,
         email: user.email,
         phone: phone,
-        address: address,
+        address: finalAddress,
+        lat: lat,
+        lng: lng,
         lastUpdated: serverTimestamp()
       }, { merge: true });
 
+      // Generate WhatsApp Message
+      const itemList = items.map(item => `${item.quantity}x ${item.product.name}`).join('\n');
+      const waText = `*New Order Alert!*\n\n*Customer:* ${user.name}\n*Phone:* ${phone}\n*Address:* ${finalAddress}\n\n*Items:*\n${itemList}\n\n*Total:* ₹${finalTotal}\n*Payment Method:* ${paymentMethod.toUpperCase()}`;
+      const waUrl = `https://wa.me/917799934943?text=${encodeURIComponent(waText)}`;
+      
+      setWhatsappUrl(waUrl);
+      
+      // Try to open WhatsApp automatically
+      setTimeout(() => window.open(waUrl, '_blank'), 300);
+
       setOrderSuccess(true);
       clearCart();
-      
-      setTimeout(() => {
-        setOrderSuccess(false);
-        setIsOpen(false);
-      }, 3000);
     } catch (err) {
       console.error("Checkout failed:", err);
       setError("Failed to process order. Please try again.");
@@ -130,8 +266,11 @@ export function FloatingCart() {
                 {orderSuccess ? (
                   <div className="h-full flex flex-col items-center justify-center text-center">
                     <CheckCircle className="w-20 h-20 text-green-500 mb-6" />
-                    <h3 className="text-3xl font-serif text-brand-text mb-2">Order Confirmed!</h3>
-                    <p className="text-brand-text/60 font-light">Your authentic spices are on their way.</p>
+                    <h3 className="text-3xl font-serif text-brand-text mb-2">Order placed successfully!</h3>
+                    <p className="text-brand-text/60 font-light mb-8">Our agent will get in contact with you shortly.</p>
+                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="px-6 py-3 border border-brand-text/20 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-brand-surface transition-colors flex items-center gap-2">
+                      <ArrowRight className="w-4 h-4" /> Continue to WhatsApp
+                    </a>
                   </div>
                 ) : items.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center opacity-50">
@@ -177,10 +316,47 @@ export function FloatingCart() {
                   
                   {user ? (
                     <div className="flex flex-col gap-5">
-                      <div className="flex flex-col gap-2">
-                        <input type="tel" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
-                        <textarea placeholder="Delivery Address" value={address} onChange={(e) => setAddress(e.target.value)} rows={2} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors resize-none"></textarea>
-                      </div>
+                      {isAddressSaved ? (
+                        <div className="bg-brand-bg p-4 rounded-xl border border-brand-text/10 relative">
+                          <div className="flex justify-between items-start mb-2">
+                            <p className="text-[10px] tracking-widest uppercase text-brand-red font-bold">Default Address</p>
+                            <button onClick={() => setIsAddressSaved(false)} className="text-brand-red text-xs hover:underline uppercase tracking-widest font-bold">Edit</button>
+                          </div>
+                          <p className="text-sm font-medium text-brand-text mb-1">{phone}</p>
+                          <p className="text-sm text-brand-text/80 leading-relaxed line-clamp-2 mb-1">{manualAddress || "No manual address provided"}</p>
+                          {autoAddress && (
+                            <p className="text-green-500 text-[10px] font-bold tracking-widest uppercase flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Auto Location Detected</p>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-3 p-4 bg-brand-surface/30 rounded-xl border border-brand-text/10">
+                          <p className="text-[10px] tracking-widest uppercase text-brand-text/50 font-medium mb-1">Add Delivery Details</p>
+                          <input type="tel" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                          
+                          <div className="flex gap-2">
+                            <input type="text" placeholder="Latitude" value={lat} readOnly className="w-1/2 bg-brand-bg/50 border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text/40 cursor-not-allowed" />
+                            <input type="text" placeholder="Longitude" value={lng} readOnly className="w-1/2 bg-brand-bg/50 border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text/40 cursor-not-allowed" />
+                          </div>
+                          {accuracy !== null && (
+                            <p className="text-[10px] text-brand-text/50 ml-1 -mt-1 font-medium tracking-wide">Accuracy: within {accuracy} meters</p>
+                          )}
+                          
+                          <button onClick={handleGetLocation} disabled={isLoadingAddress} className="w-full py-2.5 bg-brand-text text-brand-bg text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-brand-text/80 transition-colors flex justify-center items-center gap-2">
+                            {isLoadingAddress ? "Detecting Location..." : <><MapPin className="w-3 h-3" /> Detect Location</>}
+                          </button>
+
+                          {autoAddress && (
+                            <div className="flex items-center gap-2 text-green-500 text-xs font-medium bg-green-500/10 p-3 rounded-xl border border-green-500/20 mt-1">
+                              <CheckCircle className="w-4 h-4" /> Auto Location Detected
+                            </div>
+                          )}
+                        <textarea placeholder="Manual Entry (House No, Flat, Landmark)" value={manualAddress} onChange={(e) => setManualAddress(e.target.value)} rows={2} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors resize-none mt-1"></textarea>
+                          
+                          <button onClick={handleSaveAddress} disabled={isSaving} className="w-full py-3 border border-brand-red text-brand-red text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-brand-red hover:text-brand-bg transition-colors mt-1 disabled:opacity-50">
+                            {isSaving ? "Saving..." : "Save Address"}
+                          </button>
+                        </div>
+                      )}
 
                       <div className="flex flex-col gap-2">
                         <p className="text-[10px] tracking-widest uppercase text-brand-text/50 font-medium ml-1">Payment Method</p>

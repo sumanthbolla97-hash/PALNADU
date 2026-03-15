@@ -21,14 +21,14 @@ export function Testimonials() {
   ];
 
   return (
-    <section className="py-24 lg:py-40 bg-brand-black border-y border-white/5">
+    <section className="py-16 lg:py-32 bg-brand-black border-y border-white/5">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-20 lg:mb-32"
+          className="text-center mb-12 lg:mb-20"
         >
           <div className="flex items-center justify-center gap-4 mb-6">
             <span className="w-12 h-px bg-brand-red"></span>
@@ -38,7 +38,7 @@ export function Testimonials() {
           <h2 className="text-4xl lg:text-5xl font-serif text-brand-cream mb-6">Words from Home</h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
           {testimonials.map((testimonial, index) => (
             <motion.div 
               key={index}

@@ -3,11 +3,11 @@ import { Instagram, Mail, Phone } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer id="contact" className="bg-brand-bg pt-32 pb-12 overflow-hidden">
+    <footer id="contact" className="bg-brand-bg pt-20 lg:pt-32 pb-8 lg:pb-12 overflow-hidden">
       <div className="max-w-[100rem] mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-32">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-16 lg:mb-32">
           <div className="flex flex-col items-start lg:col-span-2">
-            <p className="text-brand-text/80 text-xl leading-relaxed font-light max-w-md mb-8">
+            <p className="text-brand-text/80 text-lg lg:text-xl leading-relaxed font-light max-w-md mb-6 lg:mb-8">
               Ancient Spice Traditions. Crafted in Andhra, enjoyed everywhere.
             </p>
             <a href="mailto:hello@palnadu.com" className="text-3xl font-serif text-brand-text hover:text-brand-red transition-colors">
@@ -16,7 +16,7 @@ export function Footer() {
           </div>
           
           <div className="flex flex-col items-start">
-            <h4 className="text-brand-text font-medium tracking-[0.2em] uppercase text-xs mb-8">Navigation</h4>
+            <h4 className="text-brand-text font-medium tracking-[0.2em] uppercase text-xs mb-6 lg:mb-8">Navigation</h4>
             <div className="flex flex-col gap-4 text-brand-text/60 text-lg font-light">
               <a href="/#shop" className="hover:text-brand-text transition-colors">Shop</a>
               <a href="/#story" className="hover:text-brand-text transition-colors">Our Story</a>
@@ -25,7 +25,7 @@ export function Footer() {
           </div>
           
           <div className="flex flex-col items-start">
-            <h4 className="text-brand-text font-medium tracking-[0.2em] uppercase text-xs mb-8">Socials</h4>
+            <h4 className="text-brand-text font-medium tracking-[0.2em] uppercase text-xs mb-6 lg:mb-8">Socials</h4>
             <div className="flex flex-col gap-4 text-brand-text/60 text-lg font-light">
               <a href="#" className="hover:text-brand-text transition-colors">Instagram</a>
               <a href="#" className="hover:text-brand-text transition-colors">WhatsApp</a>
@@ -35,7 +35,7 @@ export function Footer() {
         </div>
         
         {/* Massive Footer Text */}
-        <div className="w-full flex justify-center items-center border-t border-brand-text/10 pt-12 mb-12">
+        <div className="w-full flex justify-center items-center border-t border-brand-text/10 pt-8 lg:pt-12 mb-8 lg:mb-12">
           <h2 className="text-[18vw] leading-none font-serif text-brand-text/5 tracking-tighter uppercase select-none">
             PALNADU
           </h2>

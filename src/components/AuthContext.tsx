@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, onSnapshot, doc, collection, query, where, orderBy } from 'firebase/firestore';
 import { getDatabase } from 'firebase/database';
 
 const firebaseConfig = {
@@ -22,6 +22,7 @@ export const rtdb = getDatabase(app);
 const googleProvider = new GoogleAuthProvider();
 
 interface User {
+  uid: string;
   email: string;
   name: string;
   photoURL?: string;
@@ -29,6 +30,8 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
+  profileData: any;
+  userOrders: any[];
   loginWithEmail: (email: string, pass: string) => Promise<void>;
   signupWithEmail: (email: string, pass: string, name: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
@@ -41,23 +44,81 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [profileData, setProfileData] = useState<any>(() => {
+    try {
+      const cached = localStorage.getItem('palnadu_profile');
+      return cached && cached !== "undefined" ? JSON.parse(cached) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+  const [userOrders, setUserOrders] = useState<any[]>(() => {
+    try {
+      const cached = localStorage.getItem('palnadu_orders');
+      return cached && cached !== "undefined" ? JSON.parse(cached) : [];
+    } catch (e) {
+      return [];
+    }
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let unsubProfile: (() => void) | undefined;
+    let unsubOrders: (() => void) | undefined;
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser && firebaseUser.email) {
         setUser({
+          uid: firebaseUser.uid,
           email: firebaseUser.email,
           name: firebaseUser.displayName || 'User',
           photoURL: firebaseUser.photoURL || undefined
         });
+
+        unsubProfile = onSnapshot(doc(db, "users", firebaseUser.uid), (docSnap) => {
+          const data = docSnap.exists() ? docSnap.data() : {};
+          setProfileData(data);
+          localStorage.setItem('palnadu_profile', JSON.stringify(data));
+        }, (error) => {
+          console.error("Profile Sync Error:", error);
+          setProfileData({}); // Fallback to prevent infinite loading
+        });
+
+        // Removed orderBy to prevent "Missing Composite Index" crash in Firestore
+        const q = query(collection(db, "orders"), where("userId", "==", firebaseUser.uid));
+        unsubOrders = onSnapshot(q, (snap) => {
+          const orders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          
+          // Client-side sort to ensure newest orders are at the top
+          orders.sort((a: any, b: any) => {
+            const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+            const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+            return timeB - timeA;
+          });
+          
+          setUserOrders(orders);
+          localStorage.setItem('palnadu_orders', JSON.stringify(orders));
+        }, (error) => {
+          console.error("Orders Sync Error:", error);
+          setUserOrders([]); // Fallback to prevent infinite loading
+        });
       } else {
         setUser(null);
+        setProfileData(null);
+        setUserOrders([]);
+        localStorage.removeItem('palnadu_profile');
+        localStorage.removeItem('palnadu_orders');
+        if (unsubProfile) unsubProfile();
+        if (unsubOrders) unsubOrders();
       }
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      if (unsubProfile) unsubProfile();
+      if (unsubOrders) unsubOrders();
+    };
   }, []);
 
   const loginWithEmail = async (email: string, pass: string) => {
@@ -95,7 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAdmin = user?.email === 'sumanthbolla97@gmail.com';
 
   return (
-    <AuthContext.Provider value={{ user, loginWithEmail, signupWithEmail, loginWithGoogle, logout, isAdmin, loading }}>
+    <AuthContext.Provider value={{ user, profileData, userOrders, loginWithEmail, signupWithEmail, loginWithGoogle, logout, isAdmin, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );

@@ -29,7 +29,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-8"
+          className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-6 lg:mb-8"
         >
           <div className="max-w-md">
             <p className="text-brand-text/80 text-lg md:text-xl font-light leading-relaxed">
