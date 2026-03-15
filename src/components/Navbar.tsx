@@ -47,7 +47,7 @@ export function Navbar() {
               <Link to="/admin" className="inline-block text-brand-red hover:text-brand-red-light hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Admin</Link>
             )}
             {user ? (
-              <button onClick={logout} className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center uppercase">Logout</button>
+              <Link to="/profile" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center uppercase">Profile</Link>
             ) : (
               <Link to="/login" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Login</Link>
             )}
@@ -78,7 +78,7 @@ export function Navbar() {
                 <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-red font-medium">Admin</Link>
               )}
               {user ? (
-                <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="text-sm tracking-[0.2em] uppercase text-brand-text/80 font-medium text-left">Logout</button>
+                <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-text/80 font-medium">Profile</Link>
               ) : (
                 <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-text/80 font-medium">Login</Link>
               )}

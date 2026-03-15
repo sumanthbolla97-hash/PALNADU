@@ -3,10 +3,12 @@ import { motion } from "motion/react";
 import { ArrowLeft, Check, Flame } from "lucide-react";
 import { products } from "../data/products";
 import { useEffect } from "react";
+import { useCart } from "../components/CartContext";
 
 export function Product() {
   const { id } = useParams();
   const product = products.find(p => p.id === id);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -97,7 +99,10 @@ export function Product() {
               </p>
               
               <div className="flex flex-col sm:flex-row items-center gap-6 w-full mb-20">
-                <button className="group relative px-10 py-5 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm overflow-hidden w-full sm:flex-1 text-center shadow-lg shadow-brand-red/20">
+                <button 
+                  onClick={() => addToCart(product, 1)}
+                  className="group relative px-10 py-5 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm overflow-hidden w-full sm:flex-1 text-center shadow-lg shadow-brand-red/20"
+                >
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     Add to Cart
                   </span>

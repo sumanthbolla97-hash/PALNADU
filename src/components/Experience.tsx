@@ -40,8 +40,8 @@ export function Experience() {
           className="relative aspect-[4/5] lg:aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl shadow-brand-black/50 order-1 lg:order-2"
         >
           <img 
-            src="https://images.unsplash.com/photo-1601050690597-df0568f70950?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
-            alt="Traditional Indian Food" 
+            src="/Theritual.png" 
+            alt="The Ritual" 
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"
           />

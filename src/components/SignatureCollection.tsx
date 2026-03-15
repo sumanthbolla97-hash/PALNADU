@@ -3,10 +3,12 @@ import { motion, AnimatePresence } from "motion/react";
 import { Link } from "react-router-dom";
 import { products, Product } from "../data/products";
 import { X, Plus, Minus, ShoppingBag } from "lucide-react";
+import { useCart } from "./CartContext";
 
 export function SignatureCollection() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCart();
 
   const openQuickView = (product: Product) => {
     setSelectedProduct(product);
@@ -155,7 +157,13 @@ export function SignatureCollection() {
                     </div>
                   </div>
                   
-                  <button className="w-full py-5 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm rounded-full hover:bg-brand-red-light transition-colors flex items-center justify-center gap-3">
+                  <button 
+                    onClick={() => {
+                      addToCart(selectedProduct, quantity);
+                      closeQuickView();
+                    }}
+                    className="w-full py-5 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm rounded-full hover:bg-brand-red-light transition-colors flex items-center justify-center gap-3"
+                  >
                     <ShoppingBag className="w-4 h-4" />
                     Add to Cart
                   </button>
