@@ -9,7 +9,7 @@ import { CollapsibleSection } from "../components/CollapsibleSection";
 export function Product() {
   const { id } = useParams();
   const product = products.find(p => p.id === id);
-  const { items, addToCart, updateQuantity, removeFromCart } = useCart();
+  const { items, addToCart, updateQuantity, removeFromCart, openCart } = useCart();
   const [quantity, setQuantity] = useState(1);
 
   const cartItem = product ? items.find(item => item.product.id === product.id) : undefined;
@@ -157,7 +157,10 @@ export function Product() {
                 )}
                 
                 <button 
-                  onClick={() => addToCart(product, quantity)}
+                  onClick={() => {
+                    addToCart(product, quantity);
+                    openCart();
+                  }}
                   className="px-6 sm:px-10 text-brand-text border border-brand-text/20 hover:border-brand-gold hover:text-brand-gold transition-colors tracking-widest uppercase text-xs sm:text-sm w-full sm:flex-1 min-h-[56px] sm:min-h-[64px] text-center font-medium rounded-xl sm:rounded-none"
                 >
                   Buy Now

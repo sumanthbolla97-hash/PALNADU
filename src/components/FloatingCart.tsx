@@ -7,9 +7,8 @@ import { ref, push, set, serverTimestamp } from "firebase/database";
 import { Link } from "react-router-dom";
 
 export function FloatingCart() {
-  const { items, totalItems, subtotal, deliveryCharge, tax, total, updateQuantity, removeFromCart, clearCart } = useCart();
+  const { items, totalItems, subtotal, deliveryCharge, tax, total, updateQuantity, removeFromCart, clearCart, isCartOpen, openCart, closeCart } = useCart();
   const { user, userAddresses } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [whatsappUrl, setWhatsappUrl] = useState("");
@@ -42,11 +41,11 @@ export function FloatingCart() {
 
   // Reset success screen when drawer closes
   useEffect(() => {
-    if (!isOpen) {
+    if (!isCartOpen) {
       const timer = setTimeout(() => setOrderSuccess(false), 300); // 300ms delay to allow close animation to finish smoothly
       return () => clearTimeout(timer);
     }
-  }, [isOpen]);
+  }, [isCartOpen]);
 
   const handleSaveAddress = () => {
     if (!newAddress.fullName || !newAddress.phone || !newAddress.addressLine1 || !newAddress.city || !newAddress.state || !newAddress.pincode) {
@@ -160,7 +159,7 @@ export function FloatingCart() {
         transition={{ delay: 1, type: "spring", stiffness: 200, damping: 20 }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
-        onClick={() => setIsOpen(true)}
+        onClick={openCart}
         className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[60] w-16 h-16 bg-brand-red text-brand-bg shadow-2xl shadow-brand-red/40 flex items-center justify-center group border border-brand-red-light rounded-full"
       >
         <ShoppingBag className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
@@ -173,18 +172,18 @@ export function FloatingCart() {
 
       {/* Cart Drawer */}
       <AnimatePresence>
-        {isOpen && (
+        {isCartOpen && (
           <motion.div
             key="cart-backdrop"
             initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
             animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
             exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            onClick={() => setIsOpen(false)}
+            onClick={closeCart}
             className="fixed inset-0 bg-brand-text/40 backdrop-blur-sm z-[70]"
           />
         )}
-        {isOpen && (
+        {isCartOpen && (
           <motion.div
             key="cart-drawer"
             initial={{ x: "100%" }}
@@ -198,7 +197,7 @@ export function FloatingCart() {
                 <h2 className="text-2xl font-serif text-brand-text flex items-center gap-3">
                   <ShoppingBag className="w-6 h-6 text-brand-red" /> Your Cart
                 </h2>
-                <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-brand-surface rounded-full transition-colors">
+                <button onClick={closeCart} className="p-2 hover:bg-brand-surface rounded-full transition-colors">
                   <X className="w-6 h-6 text-brand-text" />
                 </button>
               </div>
@@ -217,7 +216,7 @@ export function FloatingCart() {
                     <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="px-6 py-3 mb-4 bg-[#25D366] text-white rounded-full text-xs font-bold tracking-widest uppercase hover:bg-[#1da851] transition-colors flex items-center gap-2">
                       <ArrowRight className="w-4 h-4" /> Continue to WhatsApp
                     </a>
-                    <button onClick={() => setIsOpen(false)} className="px-6 py-3 border border-brand-text/20 text-brand-text rounded-full text-xs font-bold tracking-widest uppercase hover:bg-brand-surface transition-colors">
+                    <button onClick={closeCart} className="px-6 py-3 border border-brand-text/20 text-brand-text rounded-full text-xs font-bold tracking-widest uppercase hover:bg-brand-surface transition-colors">
                       Continue Shopping
                     </button>
                   </motion.div>
@@ -233,7 +232,10 @@ export function FloatingCart() {
                         <img src={item.product.image} alt={item.product.name} className="w-20 h-20 object-cover rounded-xl bg-brand-surface" />
                         <div className="flex-1 flex flex-col justify-between">
                           <div className="flex justify-between items-start">
-                            <h4 className="text-sm font-medium text-brand-text pr-4">{item.product.name}</h4>
+                            <div>
+                              <h4 className="text-sm font-medium text-brand-text pr-4">{item.product.name}</h4>
+                              <span className="text-[10px] tracking-widest uppercase text-brand-text/50">{item.product.weight}</span>
+                            </div>
                             <button onClick={() => removeFromCart(item.product.id)} className="text-brand-text/40 hover:text-brand-red transition-colors"><Trash2 className="w-4 h-4" /></button>
                           </div>
                           <div className="flex justify-between items-center mt-2">
@@ -336,7 +338,7 @@ export function FloatingCart() {
                       </div>
                     </div>
                   ) : (
-                    <Link to="/login" onClick={() => setIsOpen(false)}>
+                    <Link to="/login" onClick={closeCart}>
                       <motion.div whileTap={{ scale: 0.98 }} className="w-full py-4 bg-brand-text text-brand-bg font-medium tracking-widest uppercase text-sm rounded-full hover:bg-brand-text/80 transition-colors flex items-center justify-center gap-3 hover:-translate-y-0.5 shadow-lg shadow-brand-text/10">
                         Login to Checkout
                       </motion.div>

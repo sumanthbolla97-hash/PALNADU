@@ -8,7 +8,7 @@ import { useCart } from "./CartContext";
 export function SignatureCollection() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const { items, addToCart, updateQuantity, removeFromCart } = useCart();
+  const { items, addToCart, updateQuantity, removeFromCart, openCart } = useCart();
 
   const openQuickView = (product: Product) => {
     setSelectedProduct(product);
@@ -185,6 +185,7 @@ export function SignatureCollection() {
                     onClick={() => {
                       addToCart(selectedProduct, quantity);
                       closeQuickView();
+                      openCart();
                     }}
                     className="w-full py-5 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm rounded-full hover:bg-brand-red-light transition-colors flex items-center justify-center gap-3 hover:-translate-y-0.5 shadow-lg shadow-brand-red/20"
                   >

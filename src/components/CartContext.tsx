@@ -20,6 +20,9 @@ interface CartContextType {
   deliveryCharge: number;
   tax: number;
   total: number;
+  isCartOpen: boolean;
+  openCart: () => void;
+  closeCart: () => void;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -27,6 +30,8 @@ const CartContext = createContext<CartContextType | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
   // Helper to prevent app crashes from corrupted local storage data
   const sanitizeItems = (data: any): CartItem[] => {
     if (!Array.isArray(data)) return [];
@@ -102,9 +107,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const tax = 0; // Maintained for interface compatibility, set to 0
   const total = subtotal + deliveryCharge;
   const cartTotal = subtotal; // Maintained for backward compatibility
+  
+  const openCart = () => setIsCartOpen(true);
+  const closeCart = () => setIsCartOpen(false);
 
   return (
-    <CartContext.Provider value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, cartTotal, subtotal, deliveryCharge, tax, total }}>
+    <CartContext.Provider value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, cartTotal, subtotal, deliveryCharge, tax, total, isCartOpen, openCart, closeCart }}>
       {children}
     </CartContext.Provider>
   );
