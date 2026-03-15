@@ -1,23 +1,38 @@
 import { Link } from "react-router-dom";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, User as UserIcon } from "lucide-react";
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from "motion/react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "./AuthContext";
 
 export function Navbar() {
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const { user, isAdmin, logout } = useAuth();
+  const profileMenuRef = useRef<HTMLDivElement>(null);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     const previous = scrollY.getPrevious() ?? 0;
     if (latest > previous && latest > 150) {
       setHidden(true);
+      setProfileMenuOpen(false);
     } else {
       setHidden(false);
     }
   });
+
+  // Close profile menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setProfileMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [profileMenuRef]);
+
 
   return (
     <motion.nav 
@@ -32,7 +47,7 @@ export function Navbar() {
       <motion.div 
         animate={{ height: hidden ? "4rem" : (scrollY.get() > 50 ? "3.5rem" : "4rem") }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="relative bg-brand-bg/90 backdrop-blur-xl border border-brand-text/10 px-6 lg:px-10 flex items-center justify-between gap-16 pointer-events-auto shadow-xl shadow-brand-text/5 w-full max-w-[100rem] rounded-full overflow-visible"
+        className="relative bg-brand-bg/90 backdrop-blur-xl border border-brand-text/10 px-6 lg:px-10 flex items-center justify-between gap-16 pointer-events-auto shadow-xl shadow-brand-text/5 w-full max-w-[100rem] rounded-full"
       >
         <div className="hidden lg:flex items-center gap-10 text-xs tracking-[0.2em] uppercase text-brand-text/80 font-medium">
           <a href="/#shop" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Shop</a>
@@ -43,33 +58,51 @@ export function Navbar() {
           Palnadu
         </Link>
 
-        <div className="flex items-center gap-10">
+        <div className="flex items-center gap-4 lg:gap-10">
           <div className="hidden lg:flex items-center gap-10 text-xs tracking-[0.2em] uppercase text-brand-text/80 font-medium">
             <a href="/#process" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Process</a>
             <a href="#contact" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Contact</a>
-            {user ? (
-              <div className="relative group py-4 -my-4">
-                <Link to="/profile" className="inline-flex items-center gap-1.5 hover:text-brand-text transition-colors uppercase">
-                  Profile <ChevronDown className="w-3 h-3 transition-transform duration-300 group-hover:rotate-180" />
-                </Link>
-                <div className="absolute right-0 top-full pt-4 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-500 ease-[0.16,1,0.3,1]">
-                  <div className="bg-brand-bg/95 backdrop-blur-xl border border-brand-text/10 rounded-2xl p-2 flex flex-col min-w-[200px] shadow-2xl">
-                    <div className="px-4 py-3 mb-1 border-b border-gray-100">
-                      <p className="text-brand-text font-medium tracking-wider text-xs capitalize truncate">{user.name}</p>
-                      <p className="text-brand-text/50 text-[9px] tracking-widest truncate mt-0.5">{user.email}</p>
+          </div>
+          
+          {/* Profile Dropdown */}
+          <div className="relative" ref={profileMenuRef}>
+            <button
+              onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+              className="p-2 rounded-full hover:bg-brand-surface transition-colors"
+            >
+              <UserIcon className="w-5 h-5 text-brand-text/80" />
+            </button>
+            <AnimatePresence>
+            {profileMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute right-0 top-full mt-4 w-60 bg-brand-bg/95 backdrop-blur-xl border border-brand-text/10 rounded-2xl shadow-2xl overflow-hidden"
+              >
+                {user ? (
+                  <div className="flex flex-col p-2">
+                    <div className="px-4 py-3 mb-1 border-b border-brand-text/10">
+                      <p className="text-brand-text font-medium tracking-wider text-sm capitalize truncate">{user.name}</p>
+                      <p className="text-brand-text/50 text-xs tracking-wider truncate mt-0.5">{user.email}</p>
                     </div>
                     {isAdmin && (
-                      <Link to="/admin" className="px-4 py-2.5 text-[10px] tracking-widest uppercase font-medium text-brand-red hover:bg-brand-surface rounded-xl transition-colors">Admin Dashboard</Link>
+                      <Link to="/admin" onClick={() => setProfileMenuOpen(false)} className="px-4 py-2.5 text-xs tracking-widest uppercase font-medium text-brand-red hover:bg-brand-surface rounded-xl transition-colors">Admin Dashboard</Link>
                     )}
-                    <Link to="/profile" className="px-4 py-2.5 text-[10px] tracking-widest uppercase font-medium text-brand-text/60 hover:text-brand-text hover:bg-brand-surface rounded-xl transition-colors">My Account</Link>
-                    <button onClick={logout} className="text-left px-4 py-2.5 text-[10px] tracking-widest uppercase font-medium text-brand-text/50 hover:text-brand-red hover:bg-brand-red/5 rounded-xl transition-colors mt-1">Sign Out</button>
+                    <Link to="/profile" onClick={() => setProfileMenuOpen(false)} className="px-4 py-2.5 text-xs tracking-widest uppercase font-medium text-brand-text/80 hover:text-brand-text hover:bg-brand-surface rounded-xl transition-colors">My Account</Link>
+                    <button onClick={() => { logout(); setProfileMenuOpen(false); }} className="text-left px-4 py-2.5 text-xs tracking-widest uppercase font-medium text-brand-text/60 hover:text-brand-red hover:bg-brand-red/5 rounded-xl transition-colors mt-1">Sign Out</button>
                   </div>
-                </div>
-              </div>
-            ) : (
-              <Link to="/login" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Login</Link>
+                ) : (
+                  <div className="p-2">
+                    <Link to="/login" onClick={() => setProfileMenuOpen(false)} className="block text-center w-full px-4 py-3 text-sm tracking-widest uppercase font-medium bg-brand-red text-brand-bg rounded-xl hover:bg-brand-red-light transition-colors">Login</Link>
+                  </div>
+                )}
+              </motion.div>
             )}
+            </AnimatePresence>
           </div>
+
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="lg:hidden p-2 -mr-2 text-brand-text hover:scale-110 transition-transform duration-300"
@@ -92,23 +125,21 @@ export function Navbar() {
               <a href="/#story" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-text/80 font-medium">Story</a>
               <a href="/#process" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-text/80 font-medium">Process</a>
               <a href="#contact" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-text/80 font-medium">Contact</a>
+              <div className="h-px bg-brand-text/10 my-2"></div>
               {user ? (
-                <>
-                  <div className="h-px bg-brand-text/10 my-2"></div>
-                  <div className="flex flex-col gap-6">
-                    <div className="flex flex-col">
-                      <span className="text-brand-text font-serif text-lg mb-1">{user.name}</span>
-                      <span className="text-brand-text/40 text-xs tracking-widest uppercase truncate">{user.email}</span>
-                    </div>
-                    {isAdmin && (
-                      <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-red font-medium">Admin Dashboard</Link>
-                    )}
-                    <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-text/80 font-medium">My Account</Link>
-                    <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="text-left text-sm tracking-[0.2em] uppercase text-brand-text/50 font-medium hover:text-brand-red transition-colors">Sign Out</button>
+                <div className="flex flex-col gap-6">
+                  <div className="flex flex-col">
+                    <span className="text-brand-text font-serif text-lg mb-1">{user.name}</span>
+                    <span className="text-brand-text/40 text-xs tracking-widest uppercase truncate">{user.email}</span>
                   </div>
-                </>
+                  {isAdmin && (
+                    <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-red font-medium">Admin Dashboard</Link>
+                  )}
+                  <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-text/80 font-medium">My Account</Link>
+                  <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="text-left text-sm tracking-[0.2em] uppercase text-brand-text/50 font-medium hover:text-brand-red transition-colors">Sign Out</button>
+                </div>
               ) : (
-                <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-text/80 font-medium">Login</Link>
+                <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="w-full text-center px-4 py-3 text-sm tracking-widest uppercase font-medium bg-brand-red text-brand-bg rounded-xl hover:bg-brand-red-light transition-colors">Login</Link>
               )}
             </motion.div>
           )}

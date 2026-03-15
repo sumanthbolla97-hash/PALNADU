@@ -2,14 +2,14 @@ import { useState, useEffect } from "react";
 import { useAuth, db, auth, Address } from "../components/AuthContext";
 import { Navigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { MapPin, Phone, ShoppingBag, Clock, Package, User, LogOut, CheckCircle2, ChevronRight, AlertTriangle, X, Edit2, Trash2, Plus, Receipt, RotateCcw } from "lucide-react";
+import { MapPin, ShoppingBag, Clock, Package, LogOut, CheckCircle2, ChevronRight, AlertTriangle, X, Edit2, Trash2, Plus, Receipt, RotateCcw } from "lucide-react";
 import { ref, push, set, update, remove } from "firebase/database";
 import { useCart } from "../components/CartContext";
+import { CollapsibleSection } from "../components/CollapsibleSection";
 
 export function Profile() {
   const { user, logout, profileData, userOrders, userAddresses } = useAuth();
   const { addToCart } = useCart();
-  const [activeTab, setActiveTab] = useState('orders');
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
   const [isEditingAddress, setIsEditingAddress] = useState(false);
@@ -265,86 +265,9 @@ export function Profile() {
           </Link>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-          {/* Profile Details Panel */}
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="md:col-span-1 flex flex-col gap-6">
-            <div className="bg-brand-surface/30 p-8 rounded-[2rem] border border-brand-text/10">
-              <h3 className="text-xl font-serif text-brand-text mb-6 flex items-center gap-2 uppercase"><MapPin className="w-5 h-5 text-brand-red" /> SAVED ADDRESSES</h3>
-              
-              {!profileData ? (
-                <p className="text-brand-text/40 text-sm">Loading details...</p>
-              ) : isEditingAddress ? (
-                <div className="flex flex-col gap-3">
-                  <p className="text-[10px] tracking-widest uppercase text-brand-text/50 font-medium mb-1">{editingAddressId ? "Edit" : "Add"} Delivery Address</p>
-                  {addressError && <p className="text-red-500 text-xs">{addressError}</p>}
-                  
-                  <input type="text" placeholder="Full Name *" value={formData.fullName} onChange={(e) => setFormData({...formData, fullName: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
-                  <input type="tel" placeholder="Phone Number *" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
-                  <input type="text" placeholder="Address Line 1 (House No, Building) *" value={formData.addressLine1} onChange={(e) => setFormData({...formData, addressLine1: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
-                  <input type="text" placeholder="Address Line 2 (Area, Street)" value={formData.addressLine2} onChange={(e) => setFormData({...formData, addressLine2: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input type="text" placeholder="City *" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
-                    <input type="text" placeholder="State *" value={formData.state} onChange={(e) => setFormData({...formData, state: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input type="text" placeholder="Pincode *" value={formData.pincode} onChange={(e) => setFormData({...formData, pincode: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
-                    <input type="text" placeholder="Landmark" value={formData.landmark} onChange={(e) => setFormData({...formData, landmark: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
-                  </div>
-                  
-                  <label className="flex items-center gap-2 mt-2 cursor-pointer">
-                    <input type="checkbox" checked={formData.isDefault} onChange={(e) => setFormData({...formData, isDefault: e.target.checked})} className="w-4 h-4 accent-brand-red rounded" />
-                    <span className="text-sm text-brand-text/80">Set as default address</span>
-                  </label>
-
-                  <div className="flex gap-2 mt-3">
-                    <button onClick={() => setIsEditingAddress(false)} className="w-1/3 py-3 border border-brand-text/20 text-brand-text text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-brand-surface transition-colors">
-                      Cancel
-                    </button>
-                    <button onClick={handleSaveAddress} disabled={isSaving} className="flex-1 py-3 bg-brand-red text-brand-bg text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-brand-red-light transition-colors disabled:opacity-50">
-                      {isSaving ? "Saving..." : "Save Address"}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-4 text-brand-text/80 text-sm font-light">
-                  <div className="flex flex-col"><span className="text-brand-text/40 text-xs tracking-widest uppercase mb-1">Email</span>{user.email}</div>
-                  
-                  <div className="mt-2 flex flex-col gap-3">
-                    <h4 className="text-xs tracking-widest uppercase text-brand-text/50 font-medium mb-2">Saved Addresses</h4>
-                    {userAddresses.length === 0 && <p className="text-sm">No addresses saved yet.</p>}
-                    {userAddresses.map((addr: Address) => (
-                      <div key={addr.id} className={`p-4 rounded-xl border relative transition-colors ${addr.isDefault ? 'border-brand-red/50 bg-brand-red/5 shadow-sm' : 'border-brand-text/10 bg-brand-surface/30 hover:border-brand-text/30'}`}>
-                        {addr.isDefault && <span className="absolute top-0 right-0 bg-brand-red text-brand-bg text-[9px] font-bold tracking-widest uppercase px-2 py-1 rounded-bl-lg rounded-tr-xl">Default</span>}
-                        <div className="flex flex-col pr-12 gap-1">
-                          <p className="text-brand-text text-sm font-medium">{addr.fullName} <span className="text-brand-text/60 ml-2">{addr.phone}</span></p>
-                          <div>
-                            <p className="text-brand-text/80 text-sm leading-relaxed">{addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ''}</p>
-                            <p className="text-brand-text/80 text-sm leading-relaxed">{addr.city}, {addr.state} - {addr.pincode}</p>
-                            {addr.landmark && <p className="text-brand-text/60 text-xs mt-1">Landmark: {addr.landmark}</p>}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 mt-4">
-                          {!addr.isDefault && (
-                            <button onClick={() => handleSetDefaultAddress(addr.id!)} className="flex-1 py-1.5 border border-brand-text/20 text-brand-text text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-brand-surface transition-colors">Set Default</button>
-                          )}
-                          <button onClick={() => handleEditAddress(addr)} className="p-2 bg-brand-text/5 hover:bg-brand-text/10 text-brand-text rounded-lg transition-colors" title="Edit Address"><Edit2 className="w-4 h-4" /></button>
-                          <button onClick={() => handleDeleteAddress(addr.id!)} className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-colors" title="Delete Address"><Trash2 className="w-4 h-4" /></button>
-                        </div>
-                      </div>
-                    ))}
-                    <button onClick={handleAddNewAddress} className="w-full py-3 mt-2 border border-dashed border-brand-text/30 text-brand-text text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-brand-surface hover:border-brand-text/50 transition-colors flex items-center justify-center gap-2">
-                      <Plus className="w-4 h-4" /> Add New Address
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </motion.div>
-
+        <div className="flex flex-col gap-6">
           {/* Orders History Panel */}
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="md:col-span-2">
-            <h3 className="text-2xl font-serif text-brand-text mb-6 flex items-center gap-3"><ShoppingBag className="w-6 h-6 text-brand-red" /> Order History</h3>
-            
+          <CollapsibleSection title="Order History" icon={<ShoppingBag className="w-6 h-6" />} defaultOpen={true}>
             {!profileData ? (
               <p className="text-brand-text/40">Loading orders...</p>
             ) : userOrders.length === 0 ? (
@@ -469,7 +392,78 @@ export function Profile() {
                 ))}
               </div>
             )}
-          </motion.div>
+          </CollapsibleSection>
+
+          {/* Profile Details Panel */}
+          <CollapsibleSection title="Account Details" icon={<MapPin className="w-5 h-5" />}>
+              {!profileData ? (
+                <p className="text-brand-text/40 text-sm">Loading details...</p>
+              ) : isEditingAddress ? (
+                <div className="flex flex-col gap-3">
+                  <p className="text-[10px] tracking-widest uppercase text-brand-text/50 font-medium mb-1">{editingAddressId ? "Edit" : "Add"} Delivery Address</p>
+                  {addressError && <p className="text-red-500 text-xs">{addressError}</p>}
+                  
+                  <input type="text" placeholder="Full Name *" value={formData.fullName} onChange={(e) => setFormData({...formData, fullName: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                  <input type="tel" placeholder="Phone Number *" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                  <input type="text" placeholder="Address Line 1 (House No, Building) *" value={formData.addressLine1} onChange={(e) => setFormData({...formData, addressLine1: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                  <input type="text" placeholder="Address Line 2 (Area, Street)" value={formData.addressLine2} onChange={(e) => setFormData({...formData, addressLine2: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input type="text" placeholder="City *" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                    <input type="text" placeholder="State *" value={formData.state} onChange={(e) => setFormData({...formData, state: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input type="text" placeholder="Pincode *" value={formData.pincode} onChange={(e) => setFormData({...formData, pincode: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                    <input type="text" placeholder="Landmark" value={formData.landmark} onChange={(e) => setFormData({...formData, landmark: e.target.value})} className="w-full bg-brand-bg border border-brand-text/10 rounded-xl py-3 px-4 text-sm text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
+                  </div>
+                  
+                  <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                    <input type="checkbox" checked={formData.isDefault} onChange={(e) => setFormData({...formData, isDefault: e.target.checked})} className="w-4 h-4 accent-brand-red rounded" />
+                    <span className="text-sm text-brand-text/80">Set as default address</span>
+                  </label>
+
+                  <div className="flex gap-2 mt-3">
+                    <button onClick={() => setIsEditingAddress(false)} className="w-1/3 py-3 border border-brand-text/20 text-brand-text text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-brand-surface transition-colors">
+                      Cancel
+                    </button>
+                    <button onClick={handleSaveAddress} disabled={isSaving} className="flex-1 py-3 bg-brand-red text-brand-bg text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-brand-red-light transition-colors disabled:opacity-50">
+                      {isSaving ? "Saving..." : "Save Address"}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-4 text-brand-text/80 text-sm font-light">
+                  <div className="flex flex-col"><span className="text-brand-text/40 text-xs tracking-widest uppercase mb-1">Email</span>{user.email}</div>
+                  
+                  <div className="mt-2 flex flex-col gap-3">
+                    <h4 className="text-xs tracking-widest uppercase text-brand-text/50 font-medium mb-2">Saved Addresses</h4>
+                    {userAddresses.length === 0 && <p className="text-sm">No addresses saved yet.</p>}
+                    {userAddresses.map((addr: Address) => (
+                      <div key={addr.id} className={`p-4 rounded-xl border relative transition-colors ${addr.isDefault ? 'border-brand-red/50 bg-brand-red/5 shadow-sm' : 'border-brand-text/10 bg-brand-surface/30 hover:border-brand-text/30'}`}>
+                        {addr.isDefault && <span className="absolute top-0 right-0 bg-brand-red text-brand-bg text-[9px] font-bold tracking-widest uppercase px-2 py-1 rounded-bl-lg rounded-tr-xl">Default</span>}
+                        <div className="flex flex-col pr-12 gap-1">
+                          <p className="text-brand-text text-sm font-medium">{addr.fullName} <span className="text-brand-text/60 ml-2">{addr.phone}</span></p>
+                          <div>
+                            <p className="text-brand-text/80 text-sm leading-relaxed">{addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ''}</p>
+                            <p className="text-brand-text/80 text-sm leading-relaxed">{addr.city}, {addr.state} - {addr.pincode}</p>
+                            {addr.landmark && <p className="text-brand-text/60 text-xs mt-1">Landmark: {addr.landmark}</p>}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 mt-4">
+                          {!addr.isDefault && (
+                            <button onClick={() => handleSetDefaultAddress(addr.id!)} className="flex-1 py-1.5 border border-brand-text/20 text-brand-text text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-brand-surface transition-colors">Set Default</button>
+                          )}
+                          <button onClick={() => handleEditAddress(addr)} className="p-2 bg-brand-text/5 hover:bg-brand-text/10 text-brand-text rounded-lg transition-colors" title="Edit Address"><Edit2 className="w-4 h-4" /></button>
+                          <button onClick={() => handleDeleteAddress(addr.id!)} className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-colors" title="Delete Address"><Trash2 className="w-4 h-4" /></button>
+                        </div>
+                      </div>
+                    ))}
+                    <button onClick={handleAddNewAddress} className="w-full py-3 mt-2 border border-dashed border-brand-text/30 text-brand-text text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-brand-surface hover:border-brand-text/50 transition-colors flex items-center justify-center gap-2">
+                      <Plus className="w-4 h-4" /> Add New Address
+                    </button>
+                  </div>
+                </div>
+              )}
+          </CollapsibleSection>
         </div>
 
         {/* Bottom Right Logout Button */}
