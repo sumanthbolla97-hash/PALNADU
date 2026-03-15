@@ -5,13 +5,14 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Playfair Display", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 
-  /* Indian Spices Light Palette */
-  --color-brand-bg: #F9F6F0; /* Light cashew/coriander */
-  --color-brand-text: #2A1C14; /* Deep roasted cumin/clove */
-  --color-brand-surface: #F0EAE1; /* Cardamom pod light */
+  /* Dark Academia Palette */
+  --color-brand-bg: #1a1a1a; /* Dark Slate Grey */
+  --color-brand-text: #F9F6F0; /* Light Off-White */
+  --color-brand-surface: #2a2a2a; /* Lighter Grey */
   --color-brand-red: #B83A26; /* Kashmiri chilli red */
   --color-brand-red-light: #D94A36; /* Bright chilli */
   --color-brand-gold: #D48C29; /* Turmeric/Mustard */
+  --color-brand-green: #556B2F; /* Dark Olive Green */
 }
 
 html {

@@ -491,7 +491,7 @@ export function Profile() {
               initial={{ opacity: 0, backdropFilter: "blur(0px)" }} animate={{ opacity: 1, backdropFilter: "blur(8px)" }} exit={{ opacity: 0, backdropFilter: "blur(0px)" }} 
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               onClick={() => setShowLogoutConfirm(false)} 
-              className="absolute inset-0 bg-brand-black/60" 
+              className="absolute inset-0 bg-brand-bg/60" 
             />
             <motion.div 
               initial={{ scale: 0.95, opacity: 0, filter: "blur(4px)" }} animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }} exit={{ scale: 0.95, opacity: 0, filter: "blur(4px)" }} 

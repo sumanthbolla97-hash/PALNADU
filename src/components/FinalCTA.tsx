@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 
 export function FinalCTA() {
   return (
-    <section className="py-20 lg:py-32 bg-brand-black relative overflow-hidden">
+    <section className="py-20 lg:py-32 bg-brand-bg relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-t from-brand-red/10 to-transparent pointer-events-none" />
       
       <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
@@ -20,14 +20,14 @@ export function FinalCTA() {
             <span className="w-12 h-px bg-brand-red"></span>
           </div>
           
-          <h2 className="text-4xl lg:text-7xl font-serif text-brand-cream leading-[1.1] mb-8 lg:mb-12">
+          <h2 className="text-4xl lg:text-7xl font-serif text-brand-text leading-[1.1] mb-8 lg:mb-12">
             Experience Authentic <br />
-            <span className="italic text-brand-cream/80">Andhra Flavor</span>
+            <span className="italic text-brand-text/80">Andhra Flavor</span>
           </h2>
           
           <a 
             href="#shop" 
-            className="group relative px-10 py-5 bg-brand-cream text-brand-black font-medium tracking-wider uppercase text-sm overflow-hidden"
+            className="group relative px-10 py-5 bg-brand-text text-brand-bg font-medium tracking-wider uppercase text-sm overflow-hidden"
           >
             <span className="relative z-10 flex items-center justify-center gap-2">
               Shop Now

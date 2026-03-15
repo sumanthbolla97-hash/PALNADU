@@ -57,14 +57,14 @@ export function Login() {
       className="min-h-screen flex bg-brand-bg"
     >
       {/* Left Panel - Imagery (Desktop Only) */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-brand-black">
-        <div className="absolute inset-0 bg-brand-black/40 z-10" />
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-brand-bg">
+        <div className="absolute inset-0 bg-brand-bg/40 z-10" />
         <img src="/traditional-spices.png" alt="Palnadu Spices" className="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-luminosity" />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-black via-transparent to-transparent z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-bg via-transparent to-transparent z-10" />
         <div className="absolute bottom-20 left-20 right-20 z-20">
           <Link to="/" className="text-3xl font-serif tracking-wide text-brand-cream block mb-12">Palnadu</Link>
           <h2 className="text-5xl font-serif text-brand-cream leading-tight mb-6">A legacy of flavor,<br/>crafted for you.</h2>
-          <p className="text-brand-cream/70 text-lg font-light max-w-md">Join us to experience authentic, slow-roasted Andhra spices delivered straight to your door.</p>
+          <p className="text-brand-text/70 text-lg font-light max-w-md">Join us to experience authentic, slow-roasted Andhra spices delivered straight to your door.</p>
         </div>
       </div>
 
