@@ -252,11 +252,24 @@ export function FloatingCart() {
                 {/* Footer / Order Summary */}
                 {!orderSuccess && items.length > 0 && (
                   <div className="p-6 md:p-8 bg-brand-surface/50 border-t border-brand-text/10 mt-auto shrink-0">
-                  <div className="flex flex-col gap-3 mb-6 text-sm font-light text-brand-text/80">
-                    <div className="flex justify-between"><span>Subtotal</span><span>₹{subtotal}</span></div>
-                    <div className="flex justify-between"><span>Delivery</span><span>{deliveryCharge === 0 ? <span className="text-green-600 font-medium">Free</span> : `₹${deliveryCharge}`}</span></div>
-                    <div className="h-px bg-brand-text/10 my-1" />
-                    <div className="flex justify-between text-lg font-serif text-brand-text"><span>Total</span><span>₹{total}</span></div>
+                  <div className="flex flex-col gap-3 p-4 bg-brand-surface/30 rounded-2xl border-brand-text/5 text-sm">
+                    <div className="flex justify-between items-center text-brand-text/60">
+                      <span>Subtotal</span>
+                      <span className="font-medium text-brand-text/80">₹{subtotal}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-brand-text/60">
+                      <span>Delivery</span>
+                      {deliveryCharge === 0 ? (
+                        <span className="font-medium text-green-500">FREE</span>
+                      ) : (
+                        <span className="font-medium text-brand-text/80">₹{deliveryCharge}</span>
+                      )}
+                    </div>
+                    <div className="w-full h-px bg-brand-text/10 my-1"></div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-lg font-serif text-brand-text">Total</span>
+                      <span className="text-xl font-serif text-brand-text">₹{total}</span>
+                    </div>
                   </div>
                   
                   {error && <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-xs rounded-xl flex items-center gap-2"><AlertCircle className="w-4 h-4" />{error}</div>}
