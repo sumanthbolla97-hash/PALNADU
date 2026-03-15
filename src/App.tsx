@@ -10,6 +10,10 @@ import { Footer } from "./components/Footer";
 import { Home } from "./pages/Home";
 import { Product } from "./pages/Product";
 import { FloatingCart } from "./components/FloatingCart";
+import { Login } from "./pages/Login";
+import { Profile } from "./pages/Profile";
+import { AdminDashboard } from "./pages/AdminDashboard";
+import { NotFound } from "./pages/NotFound";
 
 export default function App() {
   return (
@@ -34,6 +38,10 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/product/:id" element={<Product />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
         <Footer />
