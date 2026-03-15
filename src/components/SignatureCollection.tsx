@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { products, Product } from "../data/products";
 import { X, Plus, Minus, ShoppingBag } from "lucide-react";
 import { useCart } from "./CartContext";
@@ -9,6 +9,7 @@ export function SignatureCollection() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
   const { items, addToCart, updateQuantity, removeFromCart, openCart } = useCart();
+  const navigate = useNavigate();
 
   // Prevent scroll lock if user navigates back via phone swipe while drawer is open
   useEffect(() => {
@@ -26,6 +27,15 @@ export function SignatureCollection() {
   const closeQuickView = () => {
     setSelectedProduct(null);
     document.body.style.overflow = 'unset';
+  };
+
+  const handleProductClick = (product: Product) => {
+    // On mobile, bypass Quick View and go straight to the full details page
+    if (window.innerWidth < 768) {
+      navigate(`/product/${product.id}`);
+    } else {
+      openQuickView(product);
+    }
   };
 
   const quickViewCartItem = selectedProduct ? items.find(item => item.product.id === selectedProduct.id) : undefined;
@@ -60,7 +70,7 @@ export function SignatureCollection() {
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true, margin: "-10%" }}
                 transition={{ duration: 0.8, delay: (index % 3) * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                onClick={() => openQuickView(product)}
+                onClick={() => handleProductClick(product)}
                 className="group flex flex-col bg-brand-surface/30 p-3 md:p-6 rounded-[2rem] hover:bg-brand-surface transition-colors duration-500 border border-brand-text/5 cursor-pointer"
               >
                 <div className="relative aspect-square overflow-hidden mb-4 md:mb-6 bg-brand-surface rounded-3xl">
@@ -72,11 +82,15 @@ export function SignatureCollection() {
                     referrerPolicy="no-referrer"
                   />
                   {/* Hover Reveal Button */}
-                <div className="absolute inset-0 hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20">
-                  <div className="px-6 py-3 bg-brand-text text-brand-bg text-xs font-medium tracking-widest uppercase rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out shadow-lg pointer-events-none">
-                      View Details
-                    </div>
-                  </div>
+                <div className="absolute inset-0 hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20 pointer-events-none">
+                  <Link 
+                    to={`/product/${product.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="px-6 py-3 bg-brand-text text-brand-bg text-xs font-medium tracking-widest uppercase rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out shadow-lg pointer-events-auto hover:bg-brand-red transition-colors"
+                  >
+                    View Details
+                  </Link>
+                </div>
                 </div>
                 
                 <div className="flex flex-col flex-grow">

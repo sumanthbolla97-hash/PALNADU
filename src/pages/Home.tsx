@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { motion } from "motion/react";
 import { Hero } from "../components/Hero";
 import { TrustBar } from "../components/TrustBar";
@@ -10,9 +11,18 @@ import { Testimonials } from "../components/Testimonials";
 import { FinalCTA } from "../components/FinalCTA";
 
 export function Home() {
+  const { hash } = useLocation();
+
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    if (hash) {
+      setTimeout(() => {
+        const element = document.querySelector(hash);
+        if (element) element.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [hash]);
 
   return (
     <motion.main

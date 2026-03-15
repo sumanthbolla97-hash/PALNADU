@@ -452,4 +452,5 @@ export function AdminDashboard() {
         </AnimatePresence>
       </div>
     </motion.section>
+  );
 }

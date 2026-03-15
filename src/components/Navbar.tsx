@@ -46,8 +46,8 @@ export function Navbar() {
         className="relative bg-brand-bg/90 backdrop-blur-xl border border-brand-text/10 px-6 lg:px-10 flex items-center justify-between gap-16 pointer-events-auto shadow-xl shadow-brand-text/5 w-full max-w-[100rem] rounded-full overflow-visible"
       >
         <div className="hidden lg:flex items-center gap-10 text-xs tracking-[0.2em] uppercase text-brand-text/80 font-medium">
-          <a href="/#shop" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Shop</a>
-          <a href="/#story" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Story</a>
+          <Link to="/#shop" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Shop</Link>
+          <Link to="/#story" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Story</Link>
         </div>
 
         <Link to="/" className="text-2xl font-serif tracking-wide text-brand-text hover:scale-105 transition-transform duration-500">
@@ -56,8 +56,8 @@ export function Navbar() {
 
         <div className="flex items-center gap-10">
           <div className="hidden lg:flex items-center gap-10 text-xs tracking-[0.2em] uppercase text-brand-text/80 font-medium">
-            <a href="/#process" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Process</a>
-            <a href="#contact" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Contact</a>
+            <Link to="/#process" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Process</Link>
+            <Link to="/#contact" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Contact</Link>
             {user ? (
               <div className="relative group py-4 -my-4">
                 <Link to="/profile" className="inline-flex items-center gap-1.5 hover:text-brand-text transition-colors uppercase">
@@ -99,10 +99,10 @@ export function Navbar() {
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               className="absolute top-full left-0 right-0 mt-4 bg-brand-bg/95 backdrop-blur-2xl border border-brand-text/10 p-6 flex flex-col gap-6 pointer-events-auto shadow-2xl lg:hidden rounded-2xl mx-auto max-h-[calc(100dvh-6rem)] overflow-y-auto hide-scrollbar"
             >
-              <a href="/#shop" onClick={() => setMobileMenuOpen(false)} className="text-base tracking-[0.2em] uppercase text-brand-text/80 font-medium py-1">Shop</a>
-              <a href="/#story" onClick={() => setMobileMenuOpen(false)} className="text-base tracking-[0.2em] uppercase text-brand-text/80 font-medium py-1">Story</a>
-              <a href="/#process" onClick={() => setMobileMenuOpen(false)} className="text-base tracking-[0.2em] uppercase text-brand-text/80 font-medium py-1">Process</a>
-              <a href="#contact" onClick={() => setMobileMenuOpen(false)} className="text-base tracking-[0.2em] uppercase text-brand-text/80 font-medium py-1">Contact</a>
+              <Link to="/#shop" onClick={() => setMobileMenuOpen(false)} className="text-base tracking-[0.2em] uppercase text-brand-text/80 font-medium py-1">Shop</Link>
+              <Link to="/#story" onClick={() => setMobileMenuOpen(false)} className="text-base tracking-[0.2em] uppercase text-brand-text/80 font-medium py-1">Story</Link>
+              <Link to="/#process" onClick={() => setMobileMenuOpen(false)} className="text-base tracking-[0.2em] uppercase text-brand-text/80 font-medium py-1">Process</Link>
+              <Link to="/#contact" onClick={() => setMobileMenuOpen(false)} className="text-base tracking-[0.2em] uppercase text-brand-text/80 font-medium py-1">Contact</Link>
               {user ? (
                 <>
                   <div className="h-px bg-brand-text/10 my-2"></div>

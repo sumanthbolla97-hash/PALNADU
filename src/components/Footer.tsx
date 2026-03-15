@@ -18,9 +18,9 @@ export function Footer() {
           <div className="flex flex-col items-start">
             <h4 className="text-brand-text font-medium tracking-[0.2em] uppercase text-xs mb-6 lg:mb-8">Navigation</h4>
             <div className="flex flex-col gap-4 text-brand-text/60 text-lg font-light">
-              <a href="/#shop" className="hover:text-brand-text transition-colors">Shop</a>
-              <a href="/#story" className="hover:text-brand-text transition-colors">Our Story</a>
-              <a href="/#process" className="hover:text-brand-text transition-colors">Process</a>
+              <Link to="/#shop" className="hover:text-brand-text transition-colors">Shop</Link>
+              <Link to="/#story" className="hover:text-brand-text transition-colors">Our Story</Link>
+              <Link to="/#process" className="hover:text-brand-text transition-colors">Process</Link>
             </div>
           </div>
           
