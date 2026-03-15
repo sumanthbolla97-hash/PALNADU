@@ -27,9 +27,13 @@ export function Navbar() {
       }}
       animate={hidden ? "hidden" : "visible"}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed top-6 left-0 right-0 z-50 flex justify-center px-6 pointer-events-none"
+      className="fixed top-0 pt-6 left-0 right-0 z-50 flex justify-center px-6 pointer-events-none"
     >
-      <div className="relative bg-brand-bg/90 backdrop-blur-xl border border-brand-text/10 px-6 lg:px-10 h-16 flex items-center justify-between gap-16 pointer-events-auto shadow-xl shadow-brand-text/5 w-full max-w-[100rem]">
+      <motion.div 
+        animate={{ height: hidden ? "4rem" : (scrollY.get() > 50 ? "3.5rem" : "4rem") }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="relative bg-brand-bg/90 backdrop-blur-xl border border-brand-text/10 px-6 lg:px-10 flex items-center justify-between gap-16 pointer-events-auto shadow-xl shadow-brand-text/5 w-full max-w-[100rem] rounded-full overflow-visible"
+      >
         <div className="hidden lg:flex items-center gap-10 text-xs tracking-[0.2em] uppercase text-brand-text/80 font-medium">
           <a href="/#shop" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Shop</a>
           <a href="/#story" className="inline-block hover:text-brand-text hover:scale-110 hover:-translate-y-0.5 transition-all duration-300 origin-center">Story</a>
@@ -48,17 +52,17 @@ export function Navbar() {
                 <Link to="/profile" className="inline-flex items-center gap-1.5 hover:text-brand-text transition-colors uppercase">
                   Profile <ChevronDown className="w-3 h-3 transition-transform duration-300 group-hover:rotate-180" />
                 </Link>
-                <div className="absolute right-0 top-full pt-4 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300">
-                  <div className="bg-white backdrop-blur-xl border border-gray-200 rounded-2xl p-2 flex flex-col min-w-[200px] shadow-2xl">
+                <div className="absolute right-0 top-full pt-4 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-500 ease-[0.16,1,0.3,1]">
+                  <div className="bg-brand-bg/95 backdrop-blur-xl border border-brand-text/10 rounded-2xl p-2 flex flex-col min-w-[200px] shadow-2xl">
                     <div className="px-4 py-3 mb-1 border-b border-gray-100">
-                      <p className="text-gray-900 font-medium tracking-wider text-xs capitalize truncate">{user.name}</p>
-                      <p className="text-gray-500 text-[9px] tracking-widest truncate mt-0.5">{user.email}</p>
+                      <p className="text-brand-text font-medium tracking-wider text-xs capitalize truncate">{user.name}</p>
+                      <p className="text-brand-text/50 text-[9px] tracking-widest truncate mt-0.5">{user.email}</p>
                     </div>
                     {isAdmin && (
-                      <Link to="/admin" className="px-4 py-2.5 text-[10px] tracking-widest uppercase font-medium text-brand-red hover:bg-gray-50 rounded-xl transition-colors">Admin Dashboard</Link>
+                      <Link to="/admin" className="px-4 py-2.5 text-[10px] tracking-widest uppercase font-medium text-brand-red hover:bg-brand-surface rounded-xl transition-colors">Admin Dashboard</Link>
                     )}
-                    <Link to="/profile" className="px-4 py-2.5 text-[10px] tracking-widest uppercase font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors">My Account</Link>
-                    <button onClick={logout} className="text-left px-4 py-2.5 text-[10px] tracking-widest uppercase font-medium text-gray-500 hover:text-brand-red hover:bg-red-50 rounded-xl transition-colors mt-1">Sign Out</button>
+                    <Link to="/profile" className="px-4 py-2.5 text-[10px] tracking-widest uppercase font-medium text-brand-text/60 hover:text-brand-text hover:bg-brand-surface rounded-xl transition-colors">My Account</Link>
+                    <button onClick={logout} className="text-left px-4 py-2.5 text-[10px] tracking-widest uppercase font-medium text-brand-text/50 hover:text-brand-red hover:bg-brand-red/5 rounded-xl transition-colors mt-1">Sign Out</button>
                   </div>
                 </div>
               </div>
@@ -78,10 +82,10 @@ export function Navbar() {
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0, y: -10, scale: 0.98, filter: "blur(4px)" }}
+              animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -10, scale: 0.98, filter: "blur(4px)" }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               className="absolute top-full left-0 right-0 mt-4 bg-brand-bg/95 backdrop-blur-2xl border border-brand-text/10 p-6 flex flex-col gap-6 pointer-events-auto shadow-2xl lg:hidden rounded-2xl mx-auto"
             >
               <a href="/#shop" onClick={() => setMobileMenuOpen(false)} className="text-sm tracking-[0.2em] uppercase text-brand-text/80 font-medium">Shop</a>
@@ -109,7 +113,7 @@ export function Navbar() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
+      </motion.div>
     </motion.nav>
   );
 }

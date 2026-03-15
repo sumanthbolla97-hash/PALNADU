@@ -49,7 +49,13 @@ export function Login() {
   if (user) return <Navigate to="/" replace />;
 
   return (
-    <div className="min-h-screen flex bg-brand-bg">
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.98, filter: "blur(8px)" }}
+      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+      exit={{ opacity: 0, scale: 0.98, filter: "blur(8px)" }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className="min-h-screen flex bg-brand-bg"
+    >
       {/* Left Panel - Imagery (Desktop Only) */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-brand-black">
         <div className="absolute inset-0 bg-brand-black/40 z-10" />
@@ -73,10 +79,10 @@ export function Login() {
           <AnimatePresence mode="wait">
             <motion.div
               key={isLogin ? "login" : "signup"}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, y: 15, filter: "blur(4px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -15, filter: "blur(4px)" }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             >
               <div className="mb-10">
                 <h1 className="text-4xl font-serif text-brand-text mb-3">{isLogin ? "Welcome Back" : "Create Account"}</h1>
@@ -86,10 +92,14 @@ export function Login() {
               </div>
 
               {error && (
-                <div className="mb-6 p-4 bg-brand-red/10 border border-brand-red/20 rounded-xl text-brand-red text-sm flex items-start gap-3">
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: [-5, 5, -5, 5, 0] }}
+                  transition={{ duration: 0.4 }}
+                  className="mb-6 p-4 bg-brand-red/10 border border-brand-red/20 rounded-xl text-brand-red text-sm flex items-start gap-3">
                   <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
                   <span>{error}</span>
-                </div>
+                </motion.div>
               )}
 
               <form onSubmit={handleAuth} className="flex flex-col gap-5 mb-8">
@@ -108,9 +118,11 @@ export function Login() {
                   <input type="password" placeholder="Password" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} className="w-full bg-brand-surface/30 border border-brand-text/10 rounded-2xl py-4 pl-12 pr-4 text-brand-text focus:outline-none focus:border-brand-red transition-colors" />
                 </div>
 
-                <button type="submit" disabled={isLoading} className="w-full py-4 mt-2 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm rounded-2xl hover:bg-brand-red-light transition-colors flex items-center justify-center gap-3 disabled:opacity-50">
+                <motion.button 
+                  whileTap={{ scale: 0.98 }}
+                  type="submit" disabled={isLoading} className="w-full py-4 mt-2 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm rounded-2xl hover:bg-brand-red-light transition-colors flex items-center justify-center gap-3 disabled:opacity-50 hover:shadow-lg hover:shadow-brand-red/20 hover:-translate-y-0.5">
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>{isLogin ? "Sign In" : "Sign Up"} <ArrowRight className="w-4 h-4" /></>}
-                </button>
+                </motion.button>
               </form>
 
               <div className="relative flex items-center justify-center mb-8">
@@ -118,10 +130,12 @@ export function Login() {
                 <span className="relative bg-brand-bg px-4 text-xs tracking-widest uppercase text-brand-text/40 font-medium">Or continue with</span>
               </div>
 
-              <button type="button" onClick={handleGoogle} disabled={isLoading} className="w-full py-4 bg-brand-surface/50 border border-brand-text/10 text-brand-text font-medium tracking-widest uppercase text-xs rounded-2xl hover:bg-brand-surface transition-colors flex items-center justify-center gap-3 disabled:opacity-50">
+              <motion.button 
+                whileTap={{ scale: 0.98 }}
+                type="button" onClick={handleGoogle} disabled={isLoading} className="w-full py-4 bg-brand-surface/50 border border-brand-text/10 text-brand-text font-medium tracking-widest uppercase text-xs rounded-2xl hover:bg-brand-surface transition-colors flex items-center justify-center gap-3 disabled:opacity-50 hover:-translate-y-0.5">
                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5" />
                 Google
-              </button>
+              </motion.button>
 
               <p className="text-center text-brand-text/60 text-sm mt-10">
                 {isLogin ? "Don't have an account? " : "Already have an account? "}
@@ -133,6 +147,6 @@ export function Login() {
           </AnimatePresence>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

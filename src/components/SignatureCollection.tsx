@@ -113,17 +113,18 @@ export function SignatureCollection() {
         {selectedProduct && (
           <>
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
+              exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               onClick={closeQuickView}
-              className="fixed inset-0 bg-brand-text/20 backdrop-blur-sm z-50"
+              className="fixed inset-0 bg-brand-text/20 z-50"
             />
             <motion.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
               className="fixed top-0 right-0 h-full w-full md:w-[30rem] bg-brand-bg shadow-2xl z-50 overflow-y-auto border-l border-brand-text/10"
             >
               <div className="p-6 md:p-10 flex flex-col min-h-full">
@@ -169,16 +170,17 @@ export function SignatureCollection() {
                     </div>
                   </div>
                   
-                  <button 
+                  <motion.button 
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => {
                       addToCart(selectedProduct, quantity);
                       closeQuickView();
                     }}
-                    className="w-full py-5 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm rounded-full hover:bg-brand-red-light transition-colors flex items-center justify-center gap-3"
+                    className="w-full py-5 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm rounded-full hover:bg-brand-red-light transition-colors flex items-center justify-center gap-3 hover:-translate-y-0.5 shadow-lg shadow-brand-red/20"
                   >
                     <ShoppingBag className="w-4 h-4" />
                     Add to Cart
-                  </button>
+                  </motion.button>
                   
                   <Link 
                     to={`/product/${selectedProduct.id}`}

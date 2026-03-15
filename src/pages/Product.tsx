@@ -29,10 +29,10 @@ export function Product() {
 
   return (
     <motion.main
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
+      initial={{ opacity: 0, scale: 0.98, filter: "blur(8px)" }}
+      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+      exit={{ opacity: 0, scale: 0.98, filter: "blur(8px)" }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       className="min-h-screen bg-brand-bg pt-24 pb-32"
     >
       <div className="max-w-[100rem] mx-auto px-6">
@@ -99,15 +99,16 @@ export function Product() {
               </p>
               
               <div className="flex flex-col sm:flex-row items-center gap-6 w-full mb-20">
-                <button 
+                <motion.button 
+                  whileTap={{ scale: 0.97 }}
                   onClick={() => addToCart(product, 1)}
-                  className="group relative px-10 py-5 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm overflow-hidden w-full sm:flex-1 text-center shadow-lg shadow-brand-red/20"
+                  className="group relative px-10 py-5 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm overflow-hidden w-full sm:flex-1 text-center shadow-lg shadow-brand-red/20 hover:-translate-y-0.5 transition-transform"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     Add to Cart
                   </span>
                   <div className="absolute inset-0 bg-brand-red-light scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-out" />
-                </button>
+                </motion.button>
                 
                 <button className="px-10 py-5 text-brand-text border border-brand-text/20 hover:border-brand-gold hover:text-brand-gold transition-colors tracking-widest uppercase text-sm w-full sm:flex-1 text-center font-medium">
                   Buy Now

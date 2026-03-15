@@ -160,7 +160,12 @@ export function AdminDashboard() {
   ];
 
   return (
-    <section className="min-h-screen bg-brand-bg pt-24 pb-24 px-6">
+    <motion.section 
+      initial={{ opacity: 0, scale: 0.98, filter: "blur(8px)" }}
+      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+      exit={{ opacity: 0, scale: 0.98, filter: "blur(8px)" }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className="min-h-screen bg-brand-bg pt-24 pb-24 px-6">
       <div className="max-w-7xl mx-auto">
         {/* Header & Search */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -188,17 +193,18 @@ export function AdminDashboard() {
         </motion.div>
 
         {/* Navigation Tabs */}
-        <div className="flex overflow-x-auto hide-scrollbar gap-2 mb-8 pb-2 border-b border-brand-text/10">
+        <div className="flex overflow-x-auto hide-scrollbar gap-2 mb-8 pb-2 border-b border-brand-text/10 relative">
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-6 py-3 rounded-full text-xs tracking-widest uppercase font-medium transition-all whitespace-nowrap ${
-                activeTab === tab.id 
-                ? 'bg-brand-red text-brand-bg shadow-lg shadow-brand-red/20' 
-                : 'text-brand-text/60 hover:bg-brand-surface hover:text-brand-text'
+              className={`relative flex items-center gap-2 px-6 py-3 rounded-full text-xs tracking-widest uppercase font-medium transition-colors whitespace-nowrap ${
+                activeTab === tab.id ? 'text-brand-bg' : 'text-brand-text/60 hover:bg-brand-surface hover:text-brand-text'
               }`}
             >
+              {activeTab === tab.id && (
+                <motion.div layoutId="adminTab" className="absolute inset-0 bg-brand-red rounded-full -z-10 shadow-lg shadow-brand-red/20" transition={{ type: "spring", stiffness: 300, damping: 30 }} />
+              )}
               <tab.icon className="w-4 h-4" />
               {tab.label}
             </button>
@@ -209,10 +215,10 @@ export function AdminDashboard() {
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, y: 15, filter: "blur(4px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -15, filter: "blur(4px)" }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           >
             {activeTab === 'overview' && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -442,6 +448,6 @@ export function AdminDashboard() {
           </motion.div>
         </AnimatePresence>
       </div>
-    </section>
+    </motion.section>
   );
 }

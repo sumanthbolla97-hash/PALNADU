@@ -176,9 +176,10 @@ export function FloatingCart() {
         {isOpen && (
           <>
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
+              exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               onClick={() => setIsOpen(false)}
               className="fixed inset-0 bg-brand-text/40 backdrop-blur-sm z-[70]"
             />
@@ -186,7 +187,7 @@ export function FloatingCart() {
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
               className="fixed top-0 right-0 h-full w-full md:w-[30rem] bg-brand-bg shadow-2xl z-[80] overflow-hidden flex flex-col border-l border-brand-text/10"
             >
               {/* Header */}
@@ -201,8 +202,11 @@ export function FloatingCart() {
 
               {/* Cart Items */}
               <div className="flex-1 overflow-y-auto p-6 md:p-8 hide-scrollbar">
+                <AnimatePresence mode="wait">
                 {orderSuccess ? (
-                  <div className="h-full flex flex-col items-center justify-center text-center">
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    className="h-full flex flex-col items-center justify-center text-center">
                     <CheckCircle className="w-20 h-20 text-green-500 mb-6" />
                     <h3 className="text-3xl font-serif text-brand-text mb-2">Order placed successfully!</h3>
                     <p className="text-brand-text/60 font-light mb-8">Our agent will get in contact with you shortly.</p>
@@ -212,16 +216,16 @@ export function FloatingCart() {
                     <button onClick={() => setIsOpen(false)} className="px-6 py-3 border border-brand-text/20 text-brand-text rounded-full text-xs font-bold tracking-widest uppercase hover:bg-brand-surface transition-colors">
                       Continue Shopping
                     </button>
-                  </div>
+                  </motion.div>
                 ) : items.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center text-center opacity-50">
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.5 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="h-full flex flex-col items-center justify-center text-center">
                     <ShoppingBag className="w-16 h-16 mb-4" />
                     <p className="text-xl font-serif">Your cart is empty</p>
-                  </div>
+                  </motion.div>
                 ) : (
-                  <div className="flex flex-col gap-6">
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col gap-6">
                     {items.map((item) => (
-                      <div key={item.product.id} className="flex gap-4 p-4 bg-brand-surface/30 rounded-2xl border border-brand-text/5">
+                      <motion.div layout key={item.product.id} className="flex gap-4 p-4 bg-brand-surface/30 rounded-2xl border border-brand-text/5">
                         <img src={item.product.image} alt={item.product.name} className="w-20 h-20 object-cover rounded-xl bg-brand-surface" />
                         <div className="flex-1 flex flex-col justify-between">
                           <div className="flex justify-between items-start">
@@ -237,10 +241,11 @@ export function FloatingCart() {
                             <span className="font-serif text-brand-text">₹{item.product.price * item.quantity}</span>
                           </div>
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
-                  </div>
+                  </motion.div>
                 )}
+                </AnimatePresence>
               </div>
 
               {/* Footer / Order Summary */}
@@ -319,17 +324,19 @@ export function FloatingCart() {
                       </div>
                       
                       <div className="flex flex-col gap-3 mt-2">
-                        <button onClick={() => handleCheckout(false)} disabled={isCheckingOut} className="w-full py-4 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm rounded-2xl hover:bg-brand-red-light transition-colors flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg shadow-brand-red/20">
+                        <motion.button whileTap={{ scale: 0.98 }} onClick={() => handleCheckout(false)} disabled={isCheckingOut} className="w-full py-4 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-sm rounded-2xl hover:bg-brand-red-light transition-colors flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg shadow-brand-red/20 hover:-translate-y-0.5">
                           {isCheckingOut ? "Processing..." : `Pay ₹${total}`} <ArrowRight className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => handleCheckout(true)} disabled={isCheckingOut} className="w-full py-4 bg-[#25D366] text-white font-medium tracking-widest uppercase text-sm rounded-2xl hover:bg-[#1da851] transition-colors flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg shadow-[#25D366]/20">
+                        </motion.button>
+                        <motion.button whileTap={{ scale: 0.98 }} onClick={() => handleCheckout(true)} disabled={isCheckingOut} className="w-full py-4 bg-[#25D366] text-white font-medium tracking-widest uppercase text-sm rounded-2xl hover:bg-[#1da851] transition-colors flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg shadow-[#25D366]/20 hover:-translate-y-0.5">
                           Order via WhatsApp
-                        </button>
+                        </motion.button>
                       </div>
                     </div>
                   ) : (
-                    <Link to="/login" onClick={() => setIsOpen(false)} className="w-full py-4 bg-brand-text text-brand-bg font-medium tracking-widest uppercase text-sm rounded-full hover:bg-brand-text/80 transition-colors flex items-center justify-center gap-3">
-                      Login to Checkout
+                    <Link to="/login" onClick={() => setIsOpen(false)}>
+                      <motion.div whileTap={{ scale: 0.98 }} className="w-full py-4 bg-brand-text text-brand-bg font-medium tracking-widest uppercase text-sm rounded-full hover:bg-brand-text/80 transition-colors flex items-center justify-center gap-3 hover:-translate-y-0.5 shadow-lg shadow-brand-text/10">
+                        Login to Checkout
+                      </motion.div>
                     </Link>
                   )}
                 </div>

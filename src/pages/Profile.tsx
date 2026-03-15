@@ -252,7 +252,12 @@ export function Profile() {
   }
 
   return (
-    <section className="min-h-screen bg-brand-bg pt-32 pb-24 px-6">
+    <motion.section 
+      initial={{ opacity: 0, scale: 0.98, filter: "blur(8px)" }}
+      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+      exit={{ opacity: 0, scale: 0.98, filter: "blur(8px)" }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className="min-h-screen bg-brand-bg pt-32 pb-24 px-6">
       <div className="max-w-5xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-12 flex justify-between items-start border-b border-brand-text/10 pb-8">
           <div>
@@ -378,7 +383,8 @@ export function Profile() {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          className="border-t border-brand-text/5 bg-brand-surface/10"
+                          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                          className="border-t border-brand-text/5 bg-brand-surface/10 overflow-hidden"
                         >
                           <div className="p-6 flex flex-col gap-6">
                             {/* Status Timeline */}
@@ -490,12 +496,14 @@ export function Profile() {
         {showLogoutConfirm && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
             <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
+              initial={{ opacity: 0, backdropFilter: "blur(0px)" }} animate={{ opacity: 1, backdropFilter: "blur(8px)" }} exit={{ opacity: 0, backdropFilter: "blur(0px)" }} 
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               onClick={() => setShowLogoutConfirm(false)} 
-              className="absolute inset-0 bg-brand-black/60 backdrop-blur-sm" 
+              className="absolute inset-0 bg-brand-black/60" 
             />
             <motion.div 
-              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} 
+              initial={{ scale: 0.95, opacity: 0, filter: "blur(4px)" }} animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }} exit={{ scale: 0.95, opacity: 0, filter: "blur(4px)" }} 
+              transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
               className="bg-brand-surface border border-brand-text/10 p-8 rounded-[2rem] shadow-2xl relative z-10 max-w-sm w-full text-center"
             >
               <div className="w-16 h-16 bg-brand-red/10 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -526,6 +534,6 @@ export function Profile() {
           </motion.div>
         )}
       </AnimatePresence>
-    </section>
+    </motion.section>
   );
 }
