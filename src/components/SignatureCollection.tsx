@@ -60,8 +60,8 @@ export function SignatureCollection() {
                   referrerPolicy="no-referrer"
                 />
                 {/* Hover Reveal Button */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20">
-                  <div className="px-4 py-2 md:px-6 md:py-3 bg-brand-text text-brand-bg text-[10px] md:text-xs font-medium tracking-widest uppercase rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                <div className="absolute inset-0 flex items-center justify-center opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20">
+                  <div className="px-4 py-2 md:px-6 md:py-3 bg-brand-text/80 md:bg-brand-text text-brand-bg text-[10px] md:text-xs font-medium tracking-widest uppercase rounded-full transform md:translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out shadow-lg">
                     View Details
                   </div>
                 </div>
@@ -83,7 +83,7 @@ export function SignatureCollection() {
                   </p>
                   <button 
                     onClick={() => openQuickView(product)}
-                    className="text-[10px] md:text-xs tracking-[0.2em] uppercase text-brand-red font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:block"
+                    className="text-[10px] md:text-xs tracking-[0.2em] uppercase text-brand-red font-medium opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   >
                     Explore &rarr;
                   </button>
