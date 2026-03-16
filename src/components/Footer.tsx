@@ -10,8 +10,8 @@ export function Footer() {
             <p className="text-brand-text/80 text-lg lg:text-xl leading-relaxed font-light max-w-md mb-6 lg:mb-8">
               Ancient Spice Traditions. Crafted in Andhra, enjoyed everywhere.
             </p>
-            <a href="mailto:hello@palnadu.com" className="text-3xl font-serif text-brand-text hover:text-brand-red transition-colors">
-              hello@palnadu.com
+            <a href="mailto:contact@palnadu.com" className="text-3xl font-serif text-brand-text hover:text-brand-red transition-colors">
+              contact@palnadu.com
             </a>
           </div>
           

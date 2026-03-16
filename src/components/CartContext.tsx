@@ -119,8 +119,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
     };
   }, [items]);
   
-  const openCart = () => setIsCartOpen(true);
-  const closeCart = () => setIsCartOpen(false);
+  const openCart = () => {
+    setIsCartOpen(true);
+    if (window.location.hash !== '#cart') {
+      window.history.pushState(null, '', window.location.pathname + window.location.search + '#cart');
+    }
+  };
+  const closeCart = () => {
+    setIsCartOpen(false);
+    if (window.location.hash === '#cart') window.history.back();
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (isCartOpen && window.location.hash !== '#cart') setIsCartOpen(false);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [isCartOpen]);
 
   return (
     <CartContext.Provider value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, cartTotal, subtotal, deliveryCharge, tax, total, isCartOpen, openCart, closeCart }}>

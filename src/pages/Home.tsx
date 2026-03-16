@@ -14,7 +14,7 @@ export function Home() {
   const { hash } = useLocation();
 
   useEffect(() => {
-    if (hash) {
+    if (hash && !['#cart', '#quickview', '#menu'].includes(hash)) {
       setTimeout(() => {
         const element = document.querySelector(hash);
         if (element) element.scrollIntoView({ behavior: "smooth" });

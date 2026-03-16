@@ -30,6 +30,26 @@ export function Navbar() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    const handlePopState = () => {
+      if (mobileMenuOpen && window.location.hash !== '#menu') {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [mobileMenuOpen]);
+
+  const toggleMobileMenu = () => {
+    if (!mobileMenuOpen) {
+      setMobileMenuOpen(true);
+      if (window.location.hash !== '#menu') window.history.pushState(null, '', window.location.pathname + window.location.search + '#menu');
+    } else {
+      setMobileMenuOpen(false);
+      if (window.location.hash === '#menu') window.history.back();
+    }
+  };
+
   return (
     <motion.nav 
       variants={{
@@ -82,7 +102,7 @@ export function Navbar() {
             )}
           </div>
           <button 
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={toggleMobileMenu}
             className="lg:hidden p-2 -mr-2 text-brand-text hover:scale-110 transition-transform duration-300"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

@@ -170,6 +170,15 @@ export function AdminDashboard() {
       exit={{ opacity: 0, scale: 0.98, filter: "blur(8px)" }}
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       className="min-h-screen bg-brand-bg pt-24 pb-24 px-6">
+      
+      {/* Mobile Close Button */}
+      <Link 
+        to="/" 
+        className="md:hidden fixed top-6 right-6 z-50 p-3 bg-brand-surface/80 backdrop-blur-md border border-brand-text/10 rounded-full text-brand-text shadow-xl"
+      >
+        <X className="w-6 h-6" />
+      </Link>
+
       <div className="max-w-7xl mx-auto">
         {/* Header & Search */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">

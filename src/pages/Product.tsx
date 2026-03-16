@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "motion/react";
-import { ArrowLeft, Check, Flame, Plus, Minus, ShoppingBag, Leaf, Utensils, Info } from "lucide-react";
+import { ArrowLeft, Check, Flame, Plus, Minus, ShoppingBag, Leaf, Utensils, Info, X } from "lucide-react";
 import { products } from "../data/products";
 import { useEffect, useState } from "react";
 import { useCart } from "../components/CartContext";
@@ -44,6 +44,14 @@ export function Product() {
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       className="min-h-screen bg-brand-bg pt-24 pb-32"
     >
+      {/* Mobile Close Button */}
+      <Link 
+        to="/" 
+        className="md:hidden fixed top-6 right-6 z-50 p-3 bg-brand-surface/80 backdrop-blur-md border border-brand-text/10 rounded-full text-brand-text shadow-xl"
+      >
+        <X className="w-6 h-6" />
+      </Link>
+
       <div className="max-w-[100rem] mx-auto px-6">
         <Link 
           to="/" 

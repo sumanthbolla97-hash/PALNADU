@@ -22,12 +22,29 @@ export function SignatureCollection() {
     setSelectedProduct(product);
     setQuantity(1);
     document.body.style.overflow = 'hidden';
+    if (window.location.hash !== '#quickview') {
+      window.history.pushState(null, '', window.location.pathname + window.location.search + '#quickview');
+    }
   };
 
   const closeQuickView = () => {
     setSelectedProduct(null);
     document.body.style.overflow = 'unset';
+    if (window.location.hash === '#quickview') {
+      window.history.back();
+    }
   };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (selectedProduct && window.location.hash !== '#quickview') {
+        setSelectedProduct(null);
+        document.body.style.overflow = 'unset';
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [selectedProduct]);
 
   const handleProductClick = (product: Product) => {
     // On mobile, bypass Quick View and go straight to the full details page
