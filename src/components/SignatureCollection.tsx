@@ -115,7 +115,7 @@ export function SignatureCollection() {
                       </div>
                     ) : (
                       <button 
-                        onClick={(e) => { e.stopPropagation(); addToCart(product, 1); openCart(); }}
+                        onClick={(e) => { e.stopPropagation(); addToCart(product, 1); }}
                         className="text-[10px] md:text-xs tracking-[0.2em] uppercase text-brand-red font-medium opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1"
                       >
                         Add to Cart <ShoppingBag className="w-3 h-3 ml-1" />
@@ -233,8 +233,6 @@ export function SignatureCollection() {
                           whileTap={{ scale: 0.97 }}
                           onClick={() => {
                             addToCart(selectedProduct, quantity);
-                            closeQuickView();
-                            openCart();
                           }}
                           className="flex-1 bg-brand-red text-brand-bg font-medium tracking-widest uppercase text-xs sm:text-sm overflow-hidden text-center shadow-lg shadow-brand-red/20 flex items-center justify-center min-h-[56px] rounded-xl hover:-translate-y-0.5 transition-transform"
                         >
